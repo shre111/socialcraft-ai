@@ -1,5 +1,5 @@
 from __future__ import annotations
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Literal, Optional
 from datetime import datetime
 import uuid
@@ -20,6 +20,3 @@ class FeedbackEvent(BaseModel):
     caption_id: str
     metadata: Optional[dict] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
-
-
-from pydantic import Field  # noqa: E402 — keep import at bottom to avoid circular issues

@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/c/Users/91890/miniconda3/python.exe -m venv .venv)",
+      "Bash(.venv/Scripts/pip install *)",
+      "Bash(/c/Users/91890/miniconda3/Scripts/conda create *)",
+      "Bash(/c/Users/91890/miniconda3/envs/socialcraft/python.exe -m pip install -r requirements.txt)",
+      "Bash(/c/Users/91890/miniconda3/envs/socialcraft/python.exe -m uvicorn app.main:app --reload --port 8000)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Read(//tmp/**)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(git push *)",
+      "Bash(/c/Users/91890/miniconda3/envs/socialcraft/python.exe -c ' *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/dashboard)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'fix\\(frontend\\): move dashboard from route group to /dashboard route *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}
