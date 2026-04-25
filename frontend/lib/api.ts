@@ -2,6 +2,20 @@ import axios from 'axios'
 import { createClient } from '@/lib/supabase'
 import { API_BASE_URL } from '@/constants'
 
+function toCamel(s: string): string {
+  return s.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+}
+
+function keysToCamel<T>(obj: T): T {
+  if (Array.isArray(obj)) return obj.map(keysToCamel) as unknown as T
+  if (obj !== null && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([k, v]) => [toCamel(k), keysToCamel(v)])
+    ) as T
+  }
+  return obj
+}
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
@@ -19,7 +33,10 @@ api.interceptors.request.use(async (config) => {
 })
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    res.data = keysToCamel(res.data)
+    return res
+  },
   (err) => {
     const message: string =
       err.response?.data?.error ?? err.message ?? 'An unexpected error occurred'
