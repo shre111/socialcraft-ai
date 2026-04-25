@@ -1,13 +1,19 @@
 from __future__ import annotations
+from typing import Optional
 from fastapi import Header, HTTPException, status
 from app.database import get_supabase
 
 
-async def get_current_user_id(authorization: str = Header(...)) -> str:
+async def get_current_user_id(authorization: Optional[str] = Header(default=None)) -> str:
     """
     Validate Supabase JWT from Authorization: Bearer <token> header.
     Returns the user's UUID.
     """
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated. Please log in.",
+        )
     if not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
