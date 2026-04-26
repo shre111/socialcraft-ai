@@ -111,6 +111,26 @@ CREATE TABLE IF NOT EXISTS user_ml_models (
 );
 
 -- ============================================================
+-- oauth_tokens
+-- Stores social platform OAuth access tokens per user
+-- ============================================================
+CREATE TABLE IF NOT EXISTS oauth_tokens (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id           UUID REFERENCES auth.users ON DELETE CASCADE,
+  platform          TEXT NOT NULL,               -- linkedin | instagram | facebook
+  access_token      TEXT NOT NULL,
+  refresh_token     TEXT,
+  expires_at        TIMESTAMPTZ,
+  platform_user_id  TEXT,
+  platform_username TEXT,
+  created_at        TIMESTAMPTZ DEFAULT NOW(),
+  updated_at        TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, platform)
+);
+
+CREATE INDEX IF NOT EXISTS idx_oauth_tokens_user_id ON oauth_tokens (user_id);
+
+-- ============================================================
 -- Row Level Security
 -- ============================================================
 ALTER TABLE user_profiles  ENABLE ROW LEVEL SECURITY;
@@ -118,6 +138,7 @@ ALTER TABLE captions        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_events     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scheduled_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_ml_models  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE oauth_tokens    ENABLE ROW LEVEL SECURITY;
 
 -- Policies: users can only see/edit their own rows
 CREATE POLICY "own profile"    ON user_profiles  FOR ALL USING (auth.uid() = id);
@@ -125,3 +146,4 @@ CREATE POLICY "own captions"   ON captions        FOR ALL USING (auth.uid() = us
 CREATE POLICY "own events"     ON user_events     FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "own scheduled"  ON scheduled_posts FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "own ml models"  ON user_ml_models  FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "own tokens"     ON oauth_tokens    FOR ALL USING (auth.uid() = user_id);

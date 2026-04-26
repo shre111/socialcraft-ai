@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import captions, users, publish, feedback, ml
+from app.routers import captions, users, publish, feedback, ml, linkedin
 
 
 @asynccontextmanager
@@ -11,6 +11,7 @@ async def lifespan(app: FastAPI):
     print(f"\n  SocialCraft AI backend ready")
     print(f"  Supabase : {settings.supabase_url}")
     print(f"  Claude   : {'configured' if settings.anthropic_api_key else 'MISSING'}")
+    print(f"  LinkedIn : {'configured' if settings.linkedin_client_id else 'not set'}")
     print(f"  CORS     : {settings.frontend_url}\n")
     yield
 
@@ -35,6 +36,7 @@ app.include_router(users.router,    prefix="/api/users",    tags=["users"])
 app.include_router(publish.router,  prefix="/api/publish",  tags=["publish"])
 app.include_router(feedback.router, prefix="/api/captions", tags=["feedback"])
 app.include_router(ml.router,       prefix="/api/ml",       tags=["ml"])
+app.include_router(linkedin.router, prefix="/api/linkedin", tags=["linkedin"])
 
 
 @app.get("/health")
