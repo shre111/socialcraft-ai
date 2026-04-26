@@ -19,7 +19,8 @@ REDIRECT_URI = "http://localhost:8000/api/linkedin/callback"
 @router.get("/connect")
 async def linkedin_connect(user_id: str = Depends(get_current_user_id)):
     """Return the LinkedIn OAuth authorization URL."""
-    state = secrets.token_urlsafe(16)
+    # Encode user_id in state so the callback knows who to save the token for
+    state = f"{user_id}.{secrets.token_urlsafe(8)}"
     url = linkedin_service.get_authorization_url(REDIRECT_URI, state)
     return {"success": True, "data": {"url": url}}
 
@@ -36,6 +37,13 @@ async def linkedin_callback(
             url=f"{settings.frontend_url}/dashboard/settings?linkedin=error&reason={error}"
         )
     try:
+        # Extract user_id from state (format: "{user_id}.{random}")
+        user_id = state.split(".")[0] if "." in state else None
+        if not user_id:
+            return RedirectResponse(
+                url=f"{settings.frontend_url}/dashboard/settings?linkedin=error&reason=invalid_state"
+            )
+
         token_data = await linkedin_service.exchange_code_for_token(code, REDIRECT_URI)
         access_token = token_data["access_token"]
         expires_in = token_data.get("expires_in", 5183944)
@@ -47,6 +55,7 @@ async def linkedin_callback(
         db = get_supabase()
         db.table("oauth_tokens").upsert(
             {
+                "user_id": user_id,
                 "platform": "linkedin",
                 "access_token": access_token,
                 "expires_at": linkedin_service.token_expires_at(expires_in),
