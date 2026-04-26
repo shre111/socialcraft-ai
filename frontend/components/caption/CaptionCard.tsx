@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Linkedin, Loader2, CheckCircle2 } from 'lucide-react'
+import { Linkedin, Loader2, CheckCircle2, CalendarClock } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { FeedbackButtons } from './FeedbackButtons'
 import { formatDate } from '@/lib/utils'
 import { useLinkedInStatus, useLinkedInPublish } from '@/hooks/useLinkedIn'
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function CaptionCard({ caption, showFeedback = true }: Props) {
+  const router = useRouter()
   const { data: linkedInStatus } = useLinkedInStatus()
   const publish = useLinkedInPublish()
   const [published, setPublished] = useState(false)
@@ -69,6 +71,15 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
       <div className="flex items-center justify-between gap-2 flex-wrap">
         {showFeedback && <FeedbackButtons caption={caption} />}
 
+        <div className="flex items-center gap-2 ml-auto">
+          <button
+            onClick={() => router.push('/dashboard/scheduler')}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-200 text-gray-600 rounded-lg hover:border-violet-300 hover:text-violet-600 transition-colors"
+          >
+            <CalendarClock className="h-3 w-3" />
+            Schedule
+          </button>
+
         {linkedInStatus?.connected && (
           published ? (
             <div className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
@@ -90,6 +101,7 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
             </button>
           )
         )}
+        </div>
       </div>
     </div>
   )
