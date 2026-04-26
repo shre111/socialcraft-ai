@@ -2,14 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Sparkles, History, CalendarClock, Settings } from 'lucide-react'
+import { Sparkles, History, CalendarClock, BarChart3, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const links = [
   { href: '/dashboard',           icon: Sparkles,     label: 'Generate' },
   { href: '/dashboard/history',   icon: History,      label: 'History' },
   { href: '/dashboard/scheduler', icon: CalendarClock, label: 'Scheduler' },
-  { href: '/dashboard/settings',  icon: Settings,     label: 'Settings' },
+  { href: '/dashboard/analytics',  icon: BarChart3,     label: 'Analytics' },
+  { href: '/dashboard/settings',   icon: Settings,      label: 'Settings' },
 ]
 
 export function Sidebar() {
