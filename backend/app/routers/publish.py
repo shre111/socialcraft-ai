@@ -53,7 +53,7 @@ async def get_scheduled(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
     result = (
         db.table("scheduled_posts")
-        .select("*")
+        .select("*, captions(generated_text, final_text, topic)")
         .eq("user_id", user_id)
         .order("scheduled_at", desc=False)
         .execute()
