@@ -1,22 +1,39 @@
 from __future__ import annotations
-from fastapi import APIRouter, Depends
+import logging
+from fastapi import APIRouter, BackgroundTasks, Depends
 from app.models.feedback import FeedbackRequest
 from app.database import get_supabase
 from app.utils.auth import get_current_user_id
+from app.ml.trainer import ModelTrainer
+from app.ml.predictor import PersonalizationEngine
 import uuid
 from datetime import datetime
 
 router = APIRouter()
+log = logging.getLogger(__name__)
+
+
+def _auto_retrain(user_id: str) -> None:
+    try:
+        db = get_supabase()
+        engine = PersonalizationEngine(db)
+        if engine.should_retrain(user_id):
+            import asyncio
+            trainer = ModelTrainer(db)
+            result = asyncio.run(trainer.train(user_id))
+            log.info("Auto-retrain for %s: %s", user_id, result)
+    except Exception:
+        log.exception("Auto-retrain failed for %s", user_id)
 
 
 @router.post("/feedback", response_model=dict)
 async def submit_feedback(
     req: FeedbackRequest,
+    background_tasks: BackgroundTasks,
     user_id: str = Depends(get_current_user_id),
 ):
     db = get_supabase()
 
-    # Record event for ML training
     event = {
         "id": str(uuid.uuid4()),
         "user_id": user_id,
@@ -27,7 +44,6 @@ async def submit_feedback(
     }
     db.table("user_events").insert(event).execute()
 
-    # Update caption flags
     updates: dict = {}
     if req.feedback_type == "liked":
         updates["was_liked"] = True
@@ -39,5 +55,7 @@ async def submit_feedback(
 
     if updates:
         db.table("captions").update(updates).eq("id", req.caption_id).execute()
+
+    background_tasks.add_task(_auto_retrain, user_id)
 
     return {"success": True, "data": {"ok": True}}
