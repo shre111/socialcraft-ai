@@ -102,9 +102,27 @@ class PersonalizationEngine:
 
     async def get_similar_liked_captions(self, user_id: str, topic: str) -> list[str]:
         """
-        Phase 1: Return last 3 liked captions (no vector search yet).
-        Phase 2: Use pgvector cosine similarity on embeddings.
+        Phase 2: pgvector cosine similarity — finds liked captions semantically
+        similar to the current topic. Falls back to recency if no embeddings exist yet.
         """
+        try:
+            from app.services import embedding_service
+            query_embedding = embedding_service.embed(topic)
+            result = self._db.rpc(
+                "match_liked_captions",
+                {
+                    "query_embedding": query_embedding,
+                    "match_user_id": user_id,
+                    "match_count": 3,
+                },
+            ).execute()
+            rows = result.data or []
+            if rows:
+                return [r.get("final_text") or r["generated_text"] for r in rows]
+        except Exception:
+            pass
+
+        # Fallback: most recent liked captions (no embeddings yet)
         result = (
             self._db.table("captions")
             .select("generated_text, final_text")

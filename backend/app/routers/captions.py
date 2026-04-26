@@ -1,10 +1,11 @@
 from __future__ import annotations
 import logging
 import traceback
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from app.models.caption import GenerateCaptionRequest, GenerateCaptionResponse, CaptionItem
 from app.services.claude_service import ClaudeService
 from app.services.personalization import PersonalizationService
+from app.services import embedding_service
 from app.database import get_supabase
 from app.utils.auth import get_current_user_id
 import uuid
@@ -14,9 +15,22 @@ router = APIRouter()
 log = logging.getLogger(__name__)
 
 
+def _save_embeddings(caption_ids: list[str], texts: list[str]) -> None:
+    """Generate and store embeddings for a batch of captions (runs in background)."""
+    try:
+        db = get_supabase()
+        for caption_id, text in zip(caption_ids, texts):
+            embedding = embedding_service.embed(text)
+            db.table("captions").update({"embedding": embedding}).eq("id", caption_id).execute()
+        log.info("Saved embeddings for %d captions", len(caption_ids))
+    except Exception:
+        log.exception("Embedding save failed")
+
+
 @router.post("/generate", response_model=dict)
 async def generate_captions(
     req: GenerateCaptionRequest,
+    background_tasks: BackgroundTasks,
     user_id: str = Depends(get_current_user_id),
 ):
     try:
@@ -44,6 +58,9 @@ async def generate_captions(
 
         # Persist to DB
         items: list[CaptionItem] = []
+        caption_ids_for_embedding: list[str] = []
+        texts_for_embedding: list[str] = []
+
         for cap in raw_captions:
             caption_id = str(uuid.uuid4())
             now = datetime.utcnow().isoformat()
@@ -59,6 +76,8 @@ async def generate_captions(
                 "created_at": now,
             }
             db.table("captions").insert(row).execute()
+            caption_ids_for_embedding.append(caption_id)
+            texts_for_embedding.append(f"{req.topic} {cap['text']}")
             items.append(
                 CaptionItem(
                     id=caption_id,
@@ -71,6 +90,9 @@ async def generate_captions(
                     created_at=datetime.fromisoformat(now),
                 )
             )
+
+        # Generate embeddings in background — doesn't block the response
+        background_tasks.add_task(_save_embeddings, caption_ids_for_embedding, texts_for_embedding)
 
         return {
             "success": True,
