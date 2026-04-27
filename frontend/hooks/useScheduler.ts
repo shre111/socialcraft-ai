@@ -32,7 +32,7 @@ export function useScheduledPosts() {
       const { data } = await api.get<ApiResponse<ScheduledPost[]>>('/api/publish/scheduled')
       return data.data
     },
-    refetchInterval: 30_000,
+    refetchInterval: 60_000,
   })
 }
 

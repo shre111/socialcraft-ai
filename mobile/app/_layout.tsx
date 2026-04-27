@@ -12,7 +12,6 @@ export default function RootLayout() {
   const setUser = useAuthStore((s) => s.setUser)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) =>
       setUser(session?.user ?? null)
     )

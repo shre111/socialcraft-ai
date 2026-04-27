@@ -36,7 +36,6 @@ export function CaptionCard({ caption }: Props) {
         marginBottom: 14, overflow: 'hidden',
       }}
     >
-      {/* Top badges */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, padding: 16, paddingBottom: 0 }}>
         {[caption.platform, caption.tone, caption.language].map((tag) => (
           <View key={tag} style={{
@@ -50,14 +49,12 @@ export function CaptionCard({ caption }: Props) {
         ))}
       </View>
 
-      {/* Caption text */}
       <View style={{ padding: 16 }}>
         <Text style={{ color: COLORS.text, fontSize: 15, lineHeight: 24 }}>
           {caption.finalText ?? caption.generatedText}
         </Text>
       </View>
 
-      {/* Hashtags */}
       {caption.hashtags.length > 0 && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingHorizontal: 16, paddingBottom: 12 }}>
           {caption.hashtags.map((tag) => (
@@ -68,10 +65,8 @@ export function CaptionCard({ caption }: Props) {
         </View>
       )}
 
-      {/* Divider */}
       <View style={{ height: 1, backgroundColor: COLORS.border, marginHorizontal: 16 }} />
 
-      {/* Actions */}
       <View style={{ flexDirection: 'row', padding: 12, gap: 4 }}>
         <TouchableOpacity
           onPress={handleLike}
@@ -85,9 +80,9 @@ export function CaptionCard({ caption }: Props) {
           <Ionicons
             name={caption.wasLiked ? 'heart' : 'heart-outline'}
             size={18}
-            color={caption.wasLiked ? '#ec4899' : COLORS.muted}
+            color={caption.wasLiked ? COLORS.like : COLORS.muted}
           />
-          <Text style={{ color: caption.wasLiked ? '#ec4899' : COLORS.muted, fontSize: 13, fontWeight: '600' }}>
+          <Text style={{ color: caption.wasLiked ? COLORS.like : COLORS.muted, fontSize: 13, fontWeight: '600' }}>
             Like
           </Text>
         </TouchableOpacity>

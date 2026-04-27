@@ -32,7 +32,6 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4 hover:shadow-sm transition-shadow">
-      {/* Meta row */}
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="px-2 py-1 bg-violet-100 text-violet-700 rounded-full font-medium capitalize">
           {caption.language}
@@ -46,12 +45,10 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
         <span className="ml-auto text-gray-400">{formatDate(caption.createdAt)}</span>
       </div>
 
-      {/* Caption text */}
       <p className="text-gray-800 whitespace-pre-wrap text-sm leading-relaxed">
         {caption.finalText ?? caption.generatedText}
       </p>
 
-      {/* Hashtags */}
       {caption.hashtags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {caption.hashtags.map((tag) => (
@@ -62,12 +59,10 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
         </div>
       )}
 
-      {/* Topic */}
       <p className="text-xs text-gray-400">
         Topic: <span className="italic">{caption.topic}</span>
       </p>
 
-      {/* Feedback + Publish row */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         {showFeedback && <FeedbackButtons caption={caption} />}
 

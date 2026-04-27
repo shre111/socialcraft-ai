@@ -28,7 +28,7 @@ export default function SettingsScreen() {
     ])
   }
 
-  const menuItems = [
+  const menuItems: { icon: React.ComponentProps<typeof Ionicons>['name']; label: string; value: string; tint: string }[] = [
     { icon: 'person-outline', label: 'Account', value: user?.email ?? '', tint: COLORS.secondary },
     { icon: 'logo-linkedin', label: 'LinkedIn', value: 'Manage on web app', tint: '#0A66C2' },
     { icon: 'bar-chart-outline', label: 'Analytics', value: 'View on web app', tint: COLORS.primary },
@@ -36,23 +36,21 @@ export default function SettingsScreen() {
   ]
 
   return (
-    <LinearGradient colors={['#0f0a1e', '#130828']} style={{ flex: 1 }}>
+    <LinearGradient colors={[COLORS.dark, COLORS.screenBg]} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
 
-          {/* Header */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-            <LinearGradient colors={['#1e1040', '#2d1f5e']}
+            <LinearGradient colors={[COLORS.iconBg, COLORS.border]}
               style={{ width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="settings-outline" size={18} color={COLORS.secondary} />
             </LinearGradient>
             <Text style={{ color: COLORS.text, fontSize: 22, fontWeight: '800' }}>Settings</Text>
           </View>
 
-          {/* Profile card */}
           <LinearGradient colors={['#1e1040', '#2a0f50']}
             style={{ borderRadius: 20, borderWidth: 1, borderColor: COLORS.border, padding: 20, marginBottom: 20, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-            <LinearGradient colors={['#7c3aed', '#a855f7']}
+            <LinearGradient colors={[COLORS.primary, COLORS.secondary]}
               style={{ width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: '#fff', fontSize: 22, fontWeight: '800' }}>
                 {user?.email?.[0]?.toUpperCase() ?? 'U'}
@@ -69,13 +67,12 @@ export default function SettingsScreen() {
             </View>
           </LinearGradient>
 
-          {/* Menu items */}
           <View style={{ backgroundColor: 'rgba(26,16,53,0.8)', borderRadius: 20, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden', marginBottom: 20 }}>
             {menuItems.map((item, i) => (
               <View key={item.label}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, gap: 14 }}>
                   <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: `${item.tint}22`, alignItems: 'center', justifyContent: 'center' }}>
-                    <Ionicons name={item.icon as any} size={18} color={item.tint} />
+                    <Ionicons name={item.icon} size={18} color={item.tint} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: COLORS.text, fontSize: 15, fontWeight: '600' }}>{item.label}</Text>
@@ -90,7 +87,6 @@ export default function SettingsScreen() {
             ))}
           </View>
 
-          {/* App info */}
           <View style={{ backgroundColor: 'rgba(26,16,53,0.5)', borderRadius: 16, padding: 16, marginBottom: 20, gap: 8 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ color: COLORS.muted, fontSize: 13 }}>Version</Text>
@@ -106,7 +102,6 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {/* Sign out */}
           <TouchableOpacity onPress={handleLogout} activeOpacity={0.8}
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
               backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 16, borderWidth: 1,

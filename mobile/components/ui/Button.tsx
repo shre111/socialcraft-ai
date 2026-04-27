@@ -20,7 +20,7 @@ export function Button({ title, onPress, loading, disabled, variant = 'primary',
       <TouchableOpacity onPress={onPress} disabled={isDisabled} activeOpacity={0.8}
         style={{ width: fullWidth ? '100%' : 'auto', opacity: isDisabled ? 0.5 : 1 }}>
         <LinearGradient
-          colors={['#7c3aed', '#6d28d9']}
+          colors={[COLORS.primary, COLORS.primaryDark]}
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
           style={{ borderRadius: 14, paddingVertical: 15, paddingHorizontal: 24,
             flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}

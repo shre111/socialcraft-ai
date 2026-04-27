@@ -6,6 +6,14 @@ import { useQuery } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { COLORS } from '@/constants'
 
+interface ScheduledPost {
+  id: string
+  platform: string
+  status: 'pending' | 'published' | 'failed'
+  scheduledAt: string
+  captions?: { generatedText?: string; finalText?: string }
+}
+
 const STATUS_COLORS: Record<string, string> = {
   pending: COLORS.warning,
   published: COLORS.success,
@@ -19,15 +27,15 @@ export default function SchedulerScreen() {
       const { data } = await api.get('/api/publish/scheduled')
       return data.data
     },
-    refetchInterval: 30000,
+    refetchInterval: 60000,
   })
 
   return (
-    <LinearGradient colors={['#0f0a1e', '#130828']} style={{ flex: 1 }}>
+    <LinearGradient colors={[COLORS.dark, COLORS.screenBg]} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <View style={{ padding: 20, paddingBottom: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <LinearGradient colors={['#1e1040', '#2d1f5e']}
+            <LinearGradient colors={[COLORS.iconBg, COLORS.border]}
               style={{ width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="calendar-outline" size={18} color={COLORS.secondary} />
             </LinearGradient>
@@ -51,12 +59,12 @@ export default function SchedulerScreen() {
             </Text>
           </View>
         ) : (
-          <FlatList
+          <FlatList<ScheduledPost>
             data={data}
-            keyExtractor={(item: any) => item.id}
+            keyExtractor={(item) => item.id}
             contentContainerStyle={{ padding: 20, paddingTop: 8, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item }: any) => (
+            renderItem={({ item }) => (
               <View style={{
                 backgroundColor: 'rgba(26,16,53,0.9)', borderRadius: 16,
                 borderWidth: 1, borderColor: COLORS.border, padding: 16, marginBottom: 12,

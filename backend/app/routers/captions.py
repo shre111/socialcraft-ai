@@ -61,10 +61,11 @@ async def generate_captions(
         caption_ids_for_embedding: list[str] = []
         texts_for_embedding: list[str] = []
 
+        rows = []
         for cap in raw_captions:
             caption_id = str(uuid.uuid4())
             now = datetime.utcnow().isoformat()
-            row = {
+            rows.append({
                 "id": caption_id,
                 "user_id": user_id,
                 "topic": req.topic,
@@ -74,8 +75,7 @@ async def generate_captions(
                 "platform": req.platform,
                 "hashtags": cap.get("hashtags", []),
                 "created_at": now,
-            }
-            db.table("captions").insert(row).execute()
+            })
             caption_ids_for_embedding.append(caption_id)
             texts_for_embedding.append(f"{req.topic} {cap['text']}")
             items.append(
@@ -90,6 +90,7 @@ async def generate_captions(
                     created_at=datetime.fromisoformat(now),
                 )
             )
+        db.table("captions").insert(rows).execute()
 
         # Generate embeddings in background — doesn't block the response
         background_tasks.add_task(_save_embeddings, caption_ids_for_embedding, texts_for_embedding)

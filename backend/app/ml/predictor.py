@@ -41,13 +41,12 @@ class PersonalizationEngine:
             .execute()
         ).data or []
 
-        # Fetch event count
-        events = (
+        event_count = (
             self._db.table("user_events")
-            .select("id")
+            .select("id", count="exact")
             .eq("user_id", user_id)
             .execute()
-        ).data or []
+        ).count or 0
 
         if not all_caps:
             return {"data_points": 0}
@@ -97,7 +96,7 @@ class PersonalizationEngine:
             "avg_caption_length": avg_length,
             "hashtag_count": avg_hashtags,
             "preferred_platforms": [],
-            "data_points": len(events),
+            "data_points": event_count,
         }
 
     async def get_similar_liked_captions(self, user_id: str, topic: str) -> list[str]:
