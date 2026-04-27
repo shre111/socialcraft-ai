@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Text } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
-import { Ionicons } from '@expo/vector-icons'
 import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { AuthLogo } from '@/components/ui/AuthLogo'
 import { COLORS } from '@/constants'
 
 export default function SignupScreen() {
@@ -28,23 +28,12 @@ export default function SignupScreen() {
   }
 
   return (
-    <LinearGradient colors={['#0f0a1e', '#1a0535', '#0f0a1e']} style={{ flex: 1 }}>
+    <LinearGradient colors={[COLORS.dark, COLORS.authBg, COLORS.dark]} style={{ flex: 1 }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}
           keyboardShouldPersistTaps="handled">
 
-          <View style={{ alignItems: 'center', marginBottom: 48 }}>
-            <LinearGradient colors={['#7c3aed', '#a855f7']}
-              style={{ width: 72, height: 72, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-              <Ionicons name="sparkles" size={36} color="#fff" />
-            </LinearGradient>
-            <Text style={{ color: COLORS.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.5 }}>
-              SocialCraft AI
-            </Text>
-            <Text style={{ color: COLORS.muted, fontSize: 15, marginTop: 6 }}>
-              Create your account
-            </Text>
-          </View>
+          <AuthLogo subtitle="Create your account" />
 
           <View style={{
             backgroundColor: 'rgba(26, 16, 53, 0.9)', borderRadius: 24,

@@ -1,17 +1,17 @@
 import { LinearGradient } from 'expo-linear-gradient'
-import { View, type ViewProps } from 'react-native'
+import { View, type ViewProps, type StyleProp, type ViewStyle } from 'react-native'
 import { COLORS } from '@/constants'
 
 interface Props extends ViewProps {
   children: React.ReactNode
   gradient?: string[]
-  style?: any
+  style?: StyleProp<ViewStyle>
 }
 
 export function GradientCard({ children, gradient, style, ...props }: Props) {
   return (
     <LinearGradient
-      colors={(gradient as [string, string, ...string[]]) ?? ['#1a1035', '#16082e']}
+      colors={(gradient as [string, string, ...string[]]) ?? [COLORS.card, COLORS.surface]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[

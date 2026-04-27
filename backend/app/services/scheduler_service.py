@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+import uuid
 from datetime import datetime, timezone
 from app.database import get_supabase
 from app.services import linkedin_service
@@ -20,6 +21,18 @@ async def run_scheduler() -> dict:
         .execute()
     ).data or []
 
+    linkedin_user_ids = list({p["user_id"] for p in pending if p["platform"] == "linkedin"})
+    tokens_by_user: dict[str, dict] = {}
+    if linkedin_user_ids:
+        token_rows = (
+            db.table("oauth_tokens")
+            .select("user_id, access_token, platform_user_id")
+            .in_("user_id", linkedin_user_ids)
+            .eq("platform", "linkedin")
+            .execute()
+        ).data or []
+        tokens_by_user = {row["user_id"]: row for row in token_rows}
+
     published, failed = 0, 0
 
     for post in pending:
@@ -34,17 +47,11 @@ async def run_scheduler() -> dict:
 
             post_id = None
             if platform == "linkedin":
-                token_row = (
-                    db.table("oauth_tokens")
-                    .select("access_token, platform_user_id")
-                    .eq("user_id", user_id)
-                    .eq("platform", "linkedin")
-                    .execute()
-                ).data
+                token_row = tokens_by_user.get(user_id)
                 if token_row:
                     result = await linkedin_service.publish_text_post(
-                        access_token=token_row[0]["access_token"],
-                        person_urn=token_row[0]["platform_user_id"],
+                        access_token=token_row["access_token"],
+                        person_urn=token_row["platform_user_id"],
                         text=text,
                     )
                     post_id = result.get("id")
@@ -55,10 +62,12 @@ async def run_scheduler() -> dict:
             }).eq("id", post["id"]).execute()
 
             db.table("user_events").insert({
+                "id": str(uuid.uuid4()),
                 "user_id": user_id,
                 "event_type": "published",
                 "caption_id": post["caption_id"],
                 "metadata": {"platform": platform, "scheduled": True},
+                "created_at": datetime.now(timezone.utc).isoformat(),
             }).execute()
 
             published += 1

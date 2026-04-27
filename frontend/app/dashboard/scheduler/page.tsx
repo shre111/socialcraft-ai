@@ -31,7 +31,7 @@ export default function SchedulerPage() {
   const [captionId, setCaptionId] = useState('')
   const [platform, setPlatform] = useState<Platform>('linkedin')
   const [scheduledAt, setScheduledAt] = useState('')
-  const [done, setDone] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const minDateTime = new Date(Date.now() + 60_000).toISOString().slice(0, 16)
 
@@ -42,9 +42,9 @@ export default function SchedulerPage() {
       platform,
       scheduled_at: new Date(scheduledAt).toISOString(),
     })
-    setDone(true)
+    setSubmitted(true)
     setTimeout(() => {
-      setDone(false)
+      setSubmitted(false)
       setShowForm(false)
       setCaptionId('')
       setScheduledAt('')
@@ -52,7 +52,7 @@ export default function SchedulerPage() {
   }
 
   const pending = posts?.filter((p) => p.status === 'pending') ?? []
-  const done_posts = posts?.filter((p) => p.status !== 'pending') ?? []
+  const pastPosts = posts?.filter((p) => p.status !== 'pending') ?? []
 
   return (
     <div className="space-y-8 max-w-3xl">
@@ -72,7 +72,6 @@ export default function SchedulerPage() {
         </button>
       </div>
 
-      {/* Schedule form */}
       {showForm && (
         <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
           <h2 className="font-semibold text-gray-900">New scheduled post</h2>
@@ -85,7 +84,6 @@ export default function SchedulerPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Caption picker */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Caption
@@ -106,7 +104,6 @@ export default function SchedulerPage() {
               </select>
             </div>
 
-            {/* Platform */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Platform</label>
               <div className="flex gap-2">
@@ -128,7 +125,6 @@ export default function SchedulerPage() {
               </div>
             </div>
 
-            {/* Date/time */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Publish date & time
@@ -154,7 +150,7 @@ export default function SchedulerPage() {
                 ) : (
                   <CalendarClock className="h-4 w-4" />
                 )}
-                {done ? 'Scheduled!' : 'Confirm schedule'}
+                {submitted ? 'Scheduled!' : 'Confirm schedule'}
               </button>
               <button
                 type="button"
@@ -168,7 +164,6 @@ export default function SchedulerPage() {
         </div>
       )}
 
-      {/* Pending posts */}
       <section className="space-y-3">
         <h2 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">
           Upcoming ({pending.length})
@@ -186,13 +181,12 @@ export default function SchedulerPage() {
         )}
       </section>
 
-      {/* Past posts */}
-      {done_posts.length > 0 && (
+      {pastPosts.length > 0 && (
         <section className="space-y-3">
           <h2 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">
-            Past ({done_posts.length})
+            Past ({pastPosts.length})
           </h2>
-          {done_posts.map((post) => (
+          {pastPosts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
         </section>

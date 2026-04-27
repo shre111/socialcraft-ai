@@ -8,14 +8,12 @@ import { Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import api from '@/lib/api'
 import { useCaptionStore } from '@/store/captionStore'
-import { useAuthStore } from '@/store/authStore'
 import { CaptionCard } from '@/components/caption/CaptionCard'
 import { Chip } from '@/components/ui/Chip'
 import { Button } from '@/components/ui/Button'
 import { LANGUAGES, TONES, PLATFORMS, COLORS } from '@/constants'
 
 export default function GenerateScreen() {
-  const user = useAuthStore((s) => s.user)
   const { captions, setCaptions, personalizationUsed, confidenceScore } = useCaptionStore()
 
   const [topic, setTopic] = useState('')
@@ -31,22 +29,21 @@ export default function GenerateScreen() {
     try {
       const { data } = await api.post('/api/captions/generate', { topic, language, tone, platform, count })
       setCaptions(data.data.captions, data.data.personalizationUsed, data.data.confidenceScore)
-    } catch (e: any) {
-      Alert.alert('Generation failed', e.message)
+    } catch (e) {
+      Alert.alert('Generation failed', (e as Error).message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <LinearGradient colors={['#0f0a1e', '#130828']} style={{ flex: 1 }}>
+    <LinearGradient colors={[COLORS.dark, COLORS.screenBg]} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
 
-          {/* Header */}
           <View style={{ marginBottom: 24 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-              <LinearGradient colors={['#7c3aed', '#a855f7']}
+              <LinearGradient colors={[COLORS.primary, COLORS.secondary]}
                 style={{ width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name="sparkles" size={18} color="#fff" />
               </LinearGradient>
@@ -57,7 +54,6 @@ export default function GenerateScreen() {
             </Text>
           </View>
 
-          {/* Topic input */}
           <View style={{
             backgroundColor: 'rgba(45,31,94,0.4)', borderRadius: 16,
             borderWidth: 1.5, borderColor: COLORS.border, marginBottom: 20,
@@ -76,7 +72,6 @@ export default function GenerateScreen() {
             </View>
           </View>
 
-          {/* Platform */}
           <SectionLabel icon="phone-portrait-outline" label="Platform" />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
             <View style={{ flexDirection: 'row', gap: 8, paddingVertical: 4 }}>
@@ -87,7 +82,6 @@ export default function GenerateScreen() {
             </View>
           </ScrollView>
 
-          {/* Language */}
           <SectionLabel icon="language-outline" label="Language" />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
             <View style={{ flexDirection: 'row', gap: 8, paddingVertical: 4 }}>
@@ -98,7 +92,6 @@ export default function GenerateScreen() {
             </View>
           </ScrollView>
 
-          {/* Tone */}
           <SectionLabel icon="happy-outline" label="Tone" />
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
             {TONES.map((t) => (
@@ -107,7 +100,6 @@ export default function GenerateScreen() {
             ))}
           </View>
 
-          {/* Count */}
           <SectionLabel icon="copy-outline" label="Number of captions" />
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 28 }}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -116,7 +108,7 @@ export default function GenerateScreen() {
                   width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
                   borderWidth: 1.5,
                   borderColor: count === n ? COLORS.primary : COLORS.border,
-                  backgroundColor: count === n ? 'rgba(124,58,237,0.2)' : 'rgba(45,31,94,0.3)',
+                  backgroundColor: count === n ? `${COLORS.primary}33` : 'rgba(45,31,94,0.3)',
                 }}>
                 <Text style={{ color: count === n ? COLORS.secondary : COLORS.muted, fontWeight: '700', fontSize: 15 }}>
                   {n}
@@ -128,11 +120,10 @@ export default function GenerateScreen() {
           <Button title={loading ? 'Generating…' : 'Generate Captions'} onPress={generate} loading={loading}
             icon={<Ionicons name="sparkles" size={18} color="#fff" />} />
 
-          {/* Personalization badge */}
           {personalizationUsed && (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12,
-              backgroundColor: 'rgba(124,58,237,0.1)', borderRadius: 12, padding: 12,
-              borderWidth: 1, borderColor: 'rgba(124,58,237,0.3)' }}>
+              backgroundColor: `${COLORS.primary}1a`, borderRadius: 12, padding: 12,
+              borderWidth: 1, borderColor: `${COLORS.primary}4d` }}>
               <Ionicons name="analytics-outline" size={16} color={COLORS.secondary} />
               <Text style={{ color: COLORS.secondary, fontSize: 13, flex: 1 }}>
                 AI personalization active · {Math.round(confidenceScore * 100)}% confidence
@@ -140,7 +131,6 @@ export default function GenerateScreen() {
             </View>
           )}
 
-          {/* Results */}
           {captions.length > 0 && (
             <View style={{ marginTop: 28 }}>
               <Text style={{ color: COLORS.text, fontSize: 18, fontWeight: '700', marginBottom: 14 }}>
@@ -155,10 +145,10 @@ export default function GenerateScreen() {
   )
 }
 
-function SectionLabel({ icon, label }: { icon: string; label: string }) {
+function SectionLabel({ icon, label }: { icon: React.ComponentProps<typeof Ionicons>['name']; label: string }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-      <Ionicons name={icon as any} size={15} color={COLORS.muted} />
+      <Ionicons name={icon} size={15} color={COLORS.muted} />
       <Text style={{ color: COLORS.muted, fontSize: 13, fontWeight: '600', letterSpacing: 0.5 }}>
         {label.toUpperCase()}
       </Text>

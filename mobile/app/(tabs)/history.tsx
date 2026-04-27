@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { View, Text, FlatList, ActivityIndicator } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -5,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { CaptionCard } from '@/components/caption/CaptionCard'
-import { useCaptionStore } from '@/store/captionStore'
 import { COLORS } from '@/constants'
 
 export default function HistoryScreen() {
@@ -13,18 +13,23 @@ export default function HistoryScreen() {
     queryKey: ['history'],
     queryFn: async () => {
       const { data } = await api.get('/api/captions/history?limit=50')
-      return data.data
+      return (data.data as any[]).map((item) => ({
+        ...item,
+        wasLiked: item.wasLiked ?? false,
+        wasUsed: item.wasUsed ?? false,
+        wasEdited: item.wasEdited ?? false,
+      }))
     },
   })
 
-  const setCaptions = useCaptionStore((s) => s.setCaptions)
+  const renderItem = useCallback(({ item }: { item: any }) => <CaptionCard caption={item} />, [])
 
   return (
-    <LinearGradient colors={['#0f0a1e', '#130828']} style={{ flex: 1 }}>
+    <LinearGradient colors={[COLORS.dark, COLORS.screenBg]} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <View style={{ padding: 20, paddingBottom: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <LinearGradient colors={['#1e1040', '#2d1f5e']}
+            <LinearGradient colors={[COLORS.iconBg, COLORS.border]}
               style={{ width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="time-outline" size={18} color={COLORS.secondary} />
             </LinearGradient>
@@ -51,10 +56,7 @@ export default function HistoryScreen() {
           <FlatList
             data={data}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => {
-              const cap = { ...item, wasLiked: item.wasLiked ?? false, wasUsed: item.wasUsed ?? false, wasEdited: item.wasEdited ?? false }
-              return <CaptionCard caption={cap} />
-            }}
+            renderItem={renderItem}
             contentContainerStyle={{ padding: 20, paddingTop: 8, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           />

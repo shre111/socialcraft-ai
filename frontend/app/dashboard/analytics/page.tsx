@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { Loader2, BarChart3, Heart, Copy, PenLine, Send, Zap } from 'lucide-react'
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
@@ -7,10 +8,22 @@ import {
 } from 'recharts'
 import { useAnalytics } from '@/hooks/useAnalytics'
 
-const COLORS = ['#7c3aed', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff', '#6d28d9']
+const CHART_COLORS = ['#7c3aed', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff', '#6d28d9']
 
 export default function AnalyticsPage() {
   const { data, isLoading, error } = useAnalytics()
+
+  const statCards = useMemo(() => {
+    if (!data) return []
+    return [
+      { label: 'Total Captions', value: data.totals.captions, icon: BarChart3, color: 'text-violet-600 bg-violet-50' },
+      { label: 'Liked', value: data.totals.liked, icon: Heart, color: 'text-pink-600 bg-pink-50' },
+      { label: 'Copied / Used', value: data.totals.used, icon: Copy, color: 'text-blue-600 bg-blue-50' },
+      { label: 'Edited', value: data.totals.edited, icon: PenLine, color: 'text-amber-600 bg-amber-50' },
+      { label: 'Published', value: data.totals.published, icon: Send, color: 'text-green-600 bg-green-50' },
+      { label: 'Total Events', value: data.totals.events, icon: Zap, color: 'text-gray-600 bg-gray-100' },
+    ]
+  }, [data])
 
   if (isLoading)
     return (
@@ -26,16 +39,7 @@ export default function AnalyticsPage() {
       </div>
     )
 
-  const { totals, captionsPerDay, topPlatforms, topTones, topLanguages, engagementByPlatform } = data
-
-  const statCards = [
-    { label: 'Total Captions', value: totals.captions, icon: BarChart3, color: 'text-violet-600 bg-violet-50' },
-    { label: 'Liked', value: totals.liked, icon: Heart, color: 'text-pink-600 bg-pink-50' },
-    { label: 'Copied / Used', value: totals.used, icon: Copy, color: 'text-blue-600 bg-blue-50' },
-    { label: 'Edited', value: totals.edited, icon: PenLine, color: 'text-amber-600 bg-amber-50' },
-    { label: 'Published', value: totals.published, icon: Send, color: 'text-green-600 bg-green-50' },
-    { label: 'Total Events', value: totals.events, icon: Zap, color: 'text-gray-600 bg-gray-100' },
-  ]
+  const { captionsPerDay, topPlatforms, topTones, topLanguages, engagementByPlatform } = data
 
   return (
     <div className="space-y-8">
@@ -44,7 +48,6 @@ export default function AnalyticsPage() {
         <p className="text-gray-500 mt-1">Your caption performance at a glance.</p>
       </div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {statCards.map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-white rounded-2xl border border-gray-200 p-4 space-y-2">
@@ -57,7 +60,6 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
-      {/* Captions per day */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6">
         <h2 className="font-semibold text-gray-900 mb-4">Captions generated — last 14 days</h2>
         <ResponsiveContainer width="100%" height={200}>
@@ -71,7 +73,6 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Top platforms */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <h2 className="font-semibold text-gray-900 mb-4">Top platforms</h2>
           <ResponsiveContainer width="100%" height={200}>
@@ -84,7 +85,6 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Top tones */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <h2 className="font-semibold text-gray-900 mb-4">Top tones</h2>
           <ResponsiveContainer width="100%" height={200}>
@@ -99,8 +99,8 @@ export default function AnalyticsPage() {
                 label={({ tone, percent }) => `${tone} ${(percent * 100).toFixed(0)}%`}
                 labelLine={false}
               >
-                {topTones.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                {topTones.map((entry, i) => (
+                  <Cell key={entry.tone} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
@@ -108,7 +108,6 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Top languages */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <h2 className="font-semibold text-gray-900 mb-4">Languages used</h2>
           <ResponsiveContainer width="100%" height={200}>
@@ -121,7 +120,6 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Engagement by platform */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <h2 className="font-semibold text-gray-900 mb-4">Likes by platform</h2>
           <ResponsiveContainer width="100%" height={200}>
