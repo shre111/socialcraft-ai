@@ -23,6 +23,7 @@ export interface ScheduleRequest {
   caption_id: string
   platform: Platform
   scheduled_at: string
+  image_url?: string
 }
 
 export function useScheduledPosts() {

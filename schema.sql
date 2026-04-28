@@ -90,8 +90,12 @@ CREATE TABLE IF NOT EXISTS scheduled_posts (
   scheduled_at     TIMESTAMPTZ NOT NULL,
   status           TEXT DEFAULT 'pending',   -- pending | published | failed
   platform_post_id TEXT,
+  image_url        TEXT,                     -- required for Instagram posts
   created_at       TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migration: add image_url if table already exists
+ALTER TABLE scheduled_posts ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_scheduled_posts_user_id      ON scheduled_posts (user_id);
 CREATE INDEX IF NOT EXISTS idx_scheduled_posts_scheduled_at ON scheduled_posts (scheduled_at ASC);
