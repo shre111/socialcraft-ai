@@ -2,13 +2,13 @@
 
 import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Loader2, Save, Linkedin, CheckCircle2, XCircle } from 'lucide-react'
+import { Loader2, Save, Linkedin, CheckCircle2, XCircle, Facebook, Instagram } from 'lucide-react'
 import { useUserProfile, useUpdatePreferences, useMLProfile } from '@/hooks/useUserPreferences'
 import { useLinkedInStatus, useLinkedInConnect, useLinkedInDisconnect } from '@/hooks/useLinkedIn'
+import { useMetaStatus, useMetaConnect, useMetaDisconnect } from '@/hooks/useMeta'
 import { LANGUAGES, TONES, PLATFORMS } from '@/constants'
 import type { Language, Tone, Platform, EmojiUsage } from '@/types'
 
-// Isolated so useSearchParams is inside a Suspense boundary
 function LinkedInBanner() {
   const params = useSearchParams()
   const p = params.get('linkedin')
@@ -29,54 +29,144 @@ function LinkedInBanner() {
   return null
 }
 
+function MetaBanner() {
+  const params = useSearchParams()
+  const p = params.get('meta')
+  const reason = params.get('reason')
+  if (p === 'connected')
+    return (
+      <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 text-sm">
+        <CheckCircle2 className="h-4 w-4 shrink-0" />
+        Facebook &amp; Instagram connected successfully!
+      </div>
+    )
+  if (p === 'error')
+    return (
+      <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-sm">
+        <XCircle className="h-4 w-4 shrink-0" />
+        {reason === 'no_pages'
+          ? 'No Facebook Pages found. You need at least one Page to connect.'
+          : 'Facebook / Instagram connection failed. Please try again.'}
+      </div>
+    )
+  return null
+}
+
 function LinkedInCard() {
   const { data: status, isLoading } = useLinkedInStatus()
   const connect = useLinkedInConnect()
   const disconnect = useLinkedInDisconnect()
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6">
-      <h2 className="font-semibold text-gray-900 mb-4">Connected Accounts</h2>
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 bg-[#0A66C2] rounded-lg flex items-center justify-center">
+          <Linkedin className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-900">LinkedIn</p>
+          <p className="text-xs text-gray-400">
+            {isLoading ? 'Checking…' : status?.connected ? `Connected as ${status.username}` : 'Not connected'}
+          </p>
+        </div>
+      </div>
+      {status?.connected ? (
+        <button
+          onClick={() => disconnect.mutate()}
+          disabled={disconnect.isPending}
+          className="px-3 py-1.5 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+        >
+          {disconnect.isPending ? <Loader2 className="h-4 w-4 animate-spin inline" /> : 'Disconnect'}
+        </button>
+      ) : (
+        <button
+          onClick={() => connect.mutate()}
+          disabled={connect.isPending || isLoading}
+          className="flex items-center gap-2 px-4 py-1.5 text-sm bg-[#0A66C2] text-white rounded-lg hover:bg-[#004182] transition-colors disabled:opacity-50"
+        >
+          {connect.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Linkedin className="h-4 w-4" />}
+          Connect
+        </button>
+      )}
+    </div>
+  )
+}
+
+function MetaCard() {
+  const { data: status, isLoading } = useMetaStatus()
+  const connect = useMetaConnect()
+  const disconnect = useMetaDisconnect()
+
+  const anyConnected = status?.facebook.connected || status?.instagram.connected
+
+  return (
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#0A66C2] rounded-lg flex items-center justify-center">
-            <Linkedin className="h-5 w-5 text-white" />
+          <div className="w-9 h-9 bg-[#1877F2] rounded-lg flex items-center justify-center">
+            <Facebook className="h-5 w-5 text-white" />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900">LinkedIn</p>
+            <p className="text-sm font-medium text-gray-900">Facebook Page</p>
             <p className="text-xs text-gray-400">
               {isLoading
                 ? 'Checking…'
-                : status?.connected
-                ? `Connected as ${status.username}`
+                : status?.facebook.connected
+                ? `Connected as ${status.facebook.username}`
                 : 'Not connected'}
             </p>
           </div>
         </div>
+        {!anyConnected && (
+          <button
+            onClick={() => connect.mutate()}
+            disabled={connect.isPending || isLoading}
+            className="flex items-center gap-2 px-4 py-1.5 text-sm bg-[#1877F2] text-white rounded-lg hover:bg-[#1668d8] transition-colors disabled:opacity-50"
+          >
+            {connect.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Facebook className="h-4 w-4" />}
+            Connect
+          </button>
+        )}
+      </div>
 
-        {status?.connected ? (
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-9 h-9 rounded-lg flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888)' }}
+          >
+            <Instagram className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-900">Instagram Business</p>
+            <p className="text-xs text-gray-400">
+              {isLoading
+                ? 'Checking…'
+                : status?.instagram.connected
+                ? `Connected as @${status.instagram.username}`
+                : status?.facebook.connected
+                ? 'No Instagram Business Account linked to your Page'
+                : 'Connect Facebook first'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {anyConnected && (
+        <div className="flex justify-end">
           <button
             onClick={() => disconnect.mutate()}
             disabled={disconnect.isPending}
             className="px-3 py-1.5 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
           >
-            {disconnect.isPending ? <Loader2 className="h-4 w-4 animate-spin inline" /> : 'Disconnect'}
-          </button>
-        ) : (
-          <button
-            onClick={() => connect.mutate()}
-            disabled={connect.isPending || isLoading}
-            className="flex items-center gap-2 px-4 py-1.5 text-sm bg-[#0A66C2] text-white rounded-lg hover:bg-[#004182] transition-colors disabled:opacity-50"
-          >
-            {connect.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+            {disconnect.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin inline" />
             ) : (
-              <Linkedin className="h-4 w-4" />
+              'Disconnect Facebook & Instagram'
             )}
-            Connect
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -131,9 +221,16 @@ export default function SettingsPage() {
 
       <Suspense fallback={null}>
         <LinkedInBanner />
+        <MetaBanner />
       </Suspense>
 
-      <LinkedInCard />
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
+        <h2 className="font-semibold text-gray-900">Connected Accounts</h2>
+        <LinkedInCard />
+        <div className="border-t border-gray-100 pt-4">
+          <MetaCard />
+        </div>
+      </div>
 
       {mlProfile && (
         <div className="bg-violet-50 border border-violet-200 rounded-xl p-5">

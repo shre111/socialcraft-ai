@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.config import settings
-from app.routers import captions, users, publish, feedback, ml, linkedin, analytics
+from app.routers import captions, users, publish, feedback, ml, linkedin, meta, analytics
 from app.services.scheduler_service import run_scheduler
 
 scheduler = AsyncIOScheduler()
@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
     print(f"  Supabase : {settings.supabase_url}")
     print(f"  Claude   : {'configured' if settings.anthropic_api_key else 'MISSING'}")
     print(f"  LinkedIn : {'configured' if settings.linkedin_client_id else 'not set'}")
+    print(f"  Meta     : {'configured' if settings.meta_app_id else 'not set'}")
     print(f"  Scheduler: running (every 1 min)")
     print(f"  CORS     : {settings.frontend_url}\n")
     yield
@@ -45,6 +46,7 @@ app.include_router(publish.router,   prefix="/api/publish",   tags=["publish"])
 app.include_router(feedback.router,  prefix="/api/captions",  tags=["feedback"])
 app.include_router(ml.router,        prefix="/api/ml",        tags=["ml"])
 app.include_router(linkedin.router,  prefix="/api/linkedin",  tags=["linkedin"])
+app.include_router(meta.router,      prefix="/api/meta",      tags=["meta"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 
 

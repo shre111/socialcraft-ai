@@ -3,37 +3,51 @@
 import { useState } from 'react'
 import {
   CalendarClock, Clock, CheckCircle2, XCircle,
-  Loader2, Plus, Linkedin, Globe,
+  Loader2, Plus, Linkedin, Globe, Facebook, Instagram,
 } from 'lucide-react'
 import { useScheduledPosts, useSchedulePost } from '@/hooks/useScheduler'
 import { useCaptionHistory } from '@/hooks/useCaption'
 import { useLinkedInStatus } from '@/hooks/useLinkedIn'
+import { useMetaStatus } from '@/hooks/useMeta'
 import { formatDate } from '@/lib/utils'
 import type { Platform } from '@/types'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
-  linkedin: <Linkedin className="h-4 w-4 text-[#0A66C2]" />,
+  linkedin:  <Linkedin  className="h-4 w-4 text-[#0A66C2]" />,
+  facebook:  <Facebook  className="h-4 w-4 text-[#1877F2]" />,
+  instagram: <Instagram className="h-4 w-4 text-[#E1306C]" />,
 }
 
 const STATUS_CONFIG = {
-  pending:   { icon: Clock,         color: 'text-amber-600 bg-amber-50',  label: 'Pending' },
-  published: { icon: CheckCircle2,  color: 'text-green-600 bg-green-50',  label: 'Published' },
-  failed:    { icon: XCircle,       color: 'text-red-600 bg-red-50',      label: 'Failed' },
+  pending:   { icon: Clock,        color: 'text-amber-600 bg-amber-50', label: 'Pending' },
+  published: { icon: CheckCircle2, color: 'text-green-600 bg-green-50', label: 'Published' },
+  failed:    { icon: XCircle,      color: 'text-red-600 bg-red-50',     label: 'Failed' },
 }
+
+const SCHEDULABLE_PLATFORMS: Platform[] = ['linkedin', 'facebook', 'instagram']
 
 export default function SchedulerPage() {
   const { data: posts, isLoading } = useScheduledPosts()
   const { data: history } = useCaptionHistory()
   const { data: linkedIn } = useLinkedInStatus()
+  const { data: meta } = useMetaStatus()
   const schedule = useSchedulePost()
 
   const [showForm, setShowForm] = useState(false)
   const [captionId, setCaptionId] = useState('')
   const [platform, setPlatform] = useState<Platform>('linkedin')
   const [scheduledAt, setScheduledAt] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
   const minDateTime = new Date(Date.now() + 60_000).toISOString().slice(0, 16)
+
+  const isPlatformConnected = (p: Platform) => {
+    if (p === 'linkedin') return !!linkedIn?.connected
+    if (p === 'facebook') return !!meta?.facebook.connected
+    if (p === 'instagram') return !!meta?.instagram.connected
+    return false
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,6 +55,7 @@ export default function SchedulerPage() {
       caption_id: captionId,
       platform,
       scheduled_at: new Date(scheduledAt).toISOString(),
+      ...(platform === 'instagram' && imageUrl ? { image_url: imageUrl } : {}),
     })
     setSubmitted(true)
     setTimeout(() => {
@@ -48,6 +63,7 @@ export default function SchedulerPage() {
       setShowForm(false)
       setCaptionId('')
       setScheduledAt('')
+      setImageUrl('')
     }, 1500)
   }
 
@@ -76,18 +92,16 @@ export default function SchedulerPage() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
           <h2 className="font-semibold text-gray-900">New scheduled post</h2>
 
-          {!linkedIn?.connected && (
+          {!isPlatformConnected(platform) && (
             <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm">
               <Globe className="h-4 w-4 shrink-0" />
-              Connect LinkedIn in Settings before scheduling.
+              Connect {platform.charAt(0).toUpperCase() + platform.slice(1)} in Settings before scheduling.
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Caption
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Caption</label>
               <select
                 required
                 value={captionId}
@@ -97,8 +111,7 @@ export default function SchedulerPage() {
                 <option value="">Select a caption…</option>
                 {history?.map((c) => (
                   <option key={c.id} value={c.id}>
-                    [{c.platform}] {c.topic} —{' '}
-                    {(c.finalText ?? c.generatedText).slice(0, 60)}…
+                    [{c.platform}] {c.topic} — {(c.finalText ?? c.generatedText).slice(0, 60)}…
                   </option>
                 ))}
               </select>
@@ -106,8 +119,8 @@ export default function SchedulerPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Platform</label>
-              <div className="flex gap-2">
-                {(['linkedin'] as Platform[]).map((p) => (
+              <div className="flex gap-2 flex-wrap">
+                {SCHEDULABLE_PLATFORMS.map((p) => (
                   <button
                     key={p}
                     type="button"
@@ -125,9 +138,26 @@ export default function SchedulerPage() {
               </div>
             </div>
 
+            {platform === 'instagram' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Image URL <span className="text-red-500">*</span>
+                </label>
+                <input
+                  required
+                  type="url"
+                  placeholder="https://example.com/image.jpg"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">Must be a publicly accessible URL. Required for Instagram.</p>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Publish date & time
+                Publish date &amp; time
               </label>
               <input
                 required
@@ -142,7 +172,7 @@ export default function SchedulerPage() {
             <div className="flex gap-3">
               <button
                 type="submit"
-                disabled={schedule.isPending || !linkedIn?.connected}
+                disabled={schedule.isPending || !isPlatformConnected(platform)}
                 className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 disabled:opacity-50 transition-colors"
               >
                 {schedule.isPending ? (

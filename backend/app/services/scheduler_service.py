@@ -3,9 +3,11 @@ import logging
 import uuid
 from datetime import datetime, timezone
 from app.database import get_supabase
-from app.services import linkedin_service
+from app.services import linkedin_service, meta_service
 
 log = logging.getLogger(__name__)
+
+_PLATFORMS = ("linkedin", "facebook", "instagram")
 
 
 async def run_scheduler() -> dict:
@@ -21,17 +23,19 @@ async def run_scheduler() -> dict:
         .execute()
     ).data or []
 
-    linkedin_user_ids = list({p["user_id"] for p in pending if p["platform"] == "linkedin"})
-    tokens_by_user: dict[str, dict] = {}
-    if linkedin_user_ids:
-        token_rows = (
-            db.table("oauth_tokens")
-            .select("user_id, access_token, platform_user_id")
-            .in_("user_id", linkedin_user_ids)
-            .eq("platform", "linkedin")
-            .execute()
-        ).data or []
-        tokens_by_user = {row["user_id"]: row for row in token_rows}
+    # Batch-fetch OAuth tokens for every platform that has pending posts
+    tokens: dict[str, dict[str, dict]] = {p: {} for p in _PLATFORMS}
+    for platform in _PLATFORMS:
+        user_ids = list({p["user_id"] for p in pending if p["platform"] == platform})
+        if user_ids:
+            rows = (
+                db.table("oauth_tokens")
+                .select("user_id, access_token, platform_user_id")
+                .in_("user_id", user_ids)
+                .eq("platform", platform)
+                .execute()
+            ).data or []
+            tokens[platform] = {row["user_id"]: row for row in rows}
 
     published, failed = 0, 0
 
@@ -45,16 +49,37 @@ async def run_scheduler() -> dict:
             if hashtags:
                 text += "\n\n" + " ".join(h if h.startswith("#") else f"#{h}" for h in hashtags)
 
+            token_row = tokens.get(platform, {}).get(user_id)
             post_id = None
-            if platform == "linkedin":
-                token_row = tokens_by_user.get(user_id)
-                if token_row:
-                    result = await linkedin_service.publish_text_post(
-                        access_token=token_row["access_token"],
-                        person_urn=token_row["platform_user_id"],
-                        text=text,
+
+            if platform == "linkedin" and token_row:
+                result = await linkedin_service.publish_text_post(
+                    access_token=token_row["access_token"],
+                    person_urn=token_row["platform_user_id"],
+                    text=text,
+                )
+                post_id = result.get("id")
+
+            elif platform == "facebook" and token_row:
+                result = await meta_service.publish_facebook_post(
+                    page_id=token_row["platform_user_id"],
+                    page_access_token=token_row["access_token"],
+                    text=text,
+                )
+                post_id = result.get("id")
+
+            elif platform == "instagram" and token_row:
+                image_url = post.get("image_url")
+                if image_url:
+                    result = await meta_service.publish_instagram_post(
+                        ig_user_id=token_row["platform_user_id"],
+                        page_access_token=token_row["access_token"],
+                        image_url=image_url,
+                        caption=text,
                     )
                     post_id = result.get("id")
+                else:
+                    log.warning("Skipping Instagram post %s — no image_url", post["id"])
 
             db.table("scheduled_posts").update({
                 "status": "published",

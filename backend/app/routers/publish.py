@@ -13,6 +13,7 @@ class SchedulePostRequest(BaseModel):
     caption_id: str
     platform: str
     scheduled_at: datetime
+    image_url: str | None = None
 
 
 @router.post("/post", response_model=dict)
@@ -43,6 +44,7 @@ async def schedule_post(
         "scheduled_at": req.scheduled_at.isoformat(),
         "status": "pending",
         "created_at": datetime.utcnow().isoformat(),
+        **({"image_url": req.image_url} if req.image_url else {}),
     }
     db.table("scheduled_posts").insert(row).execute()
     return {"success": True, "data": row}
