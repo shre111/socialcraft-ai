@@ -45,10 +45,11 @@ export function useMetaDisconnect() {
 
 export function usePublishFacebook() {
   return useMutation({
-    mutationFn: async ({ captionId, text }: { captionId: string; text: string }) => {
+    mutationFn: async ({ captionId, text, imageUrl }: { captionId: string; text: string; imageUrl?: string }) => {
       const { data } = await api.post<ApiResponse<{ postId: string }>>('/api/meta/publish/facebook', {
         caption_id: captionId,
         text,
+        image_url: imageUrl,
       })
       return data.data
     },

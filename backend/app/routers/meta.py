@@ -131,6 +131,7 @@ async def meta_disconnect(user_id: str = Depends(get_current_user_id)):
 class FacebookPublishRequest(BaseModel):
     caption_id: str
     text: str
+    image_url: str | None = None
 
 
 class InstagramPublishRequest(BaseModel):
@@ -155,11 +156,19 @@ async def publish_facebook(
     if not row:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Facebook not connected.")
     try:
-        result = await meta_service.publish_facebook_post(
-            page_id=row[0]["platform_user_id"],
-            page_access_token=row[0]["access_token"],
-            text=req.text,
-        )
+        if req.image_url:
+            result = await meta_service.publish_facebook_photo(
+                page_id=row[0]["platform_user_id"],
+                page_access_token=row[0]["access_token"],
+                image_url=req.image_url,
+                caption=req.text,
+            )
+        else:
+            result = await meta_service.publish_facebook_post(
+                page_id=row[0]["platform_user_id"],
+                page_access_token=row[0]["access_token"],
+                text=req.text,
+            )
         db.table("captions").update({"was_used": True}).eq("id", req.caption_id).execute()
         db.table("user_events").insert({
             "user_id": user_id,
