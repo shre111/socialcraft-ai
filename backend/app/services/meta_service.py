@@ -75,6 +75,18 @@ async def get_instagram_account(page_id: str, page_access_token: str) -> dict | 
         return resp.json().get("instagram_business_account")
 
 
+async def publish_facebook_photo(
+    page_id: str, page_access_token: str, image_url: str, caption: str
+) -> dict:
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{META_GRAPH_URL}/{page_id}/photos",
+            data={"url": image_url, "caption": caption, "access_token": page_access_token},
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+
 async def publish_facebook_post(page_id: str, page_access_token: str, text: str) -> dict:
     async with httpx.AsyncClient() as client:
         resp = await client.post(

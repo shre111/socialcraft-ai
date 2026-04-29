@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.config import settings
-from app.routers import captions, users, publish, feedback, ml, linkedin, meta, analytics
+from app.routers import captions, users, publish, feedback, ml, linkedin, meta, analytics, upload
 from app.services.scheduler_service import run_scheduler
 
 scheduler = AsyncIOScheduler()
@@ -48,6 +48,7 @@ app.include_router(ml.router,        prefix="/api/ml",        tags=["ml"])
 app.include_router(linkedin.router,  prefix="/api/linkedin",  tags=["linkedin"])
 app.include_router(meta.router,      prefix="/api/meta",      tags=["meta"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
+app.include_router(upload.router,   prefix="/api/upload",   tags=["upload"])
 
 
 @app.get("/health")

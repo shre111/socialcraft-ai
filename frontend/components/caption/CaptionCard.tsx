@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Linkedin, Loader2, CheckCircle2, CalendarClock, Facebook, Instagram } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { FeedbackButtons } from './FeedbackButtons'
+import { ImageUpload } from '@/components/ui/ImageUpload'
 import { formatDate } from '@/lib/utils'
 import { useLinkedInStatus, useLinkedInPublish } from '@/hooks/useLinkedIn'
 import { useMetaStatus, usePublishFacebook, usePublishInstagram } from '@/hooks/useMeta'
@@ -25,8 +26,8 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
   const [published, setPublished] = useState(false)
   const [fbPublished, setFbPublished] = useState(false)
   const [igPublished, setIgPublished] = useState(false)
-  const [showIgForm, setShowIgForm] = useState(false)
-  const [igImageUrl, setIgImageUrl] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [igMissingImage, setIgMissingImage] = useState(false)
 
   const fullText =
     (caption.finalText ?? caption.generatedText) +
@@ -40,14 +41,18 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
   }
 
   const handlePublishFacebook = async () => {
-    await publishFb.mutateAsync({ captionId: caption.id, text: fullText })
+    await publishFb.mutateAsync({ captionId: caption.id, text: fullText, imageUrl: imageUrl || undefined })
     setFbPublished(true)
   }
 
   const handlePublishInstagram = async () => {
-    await publishIg.mutateAsync({ captionId: caption.id, text: fullText, imageUrl: igImageUrl })
+    if (!imageUrl) {
+      setIgMissingImage(true)
+      return
+    }
+    setIgMissingImage(false)
+    await publishIg.mutateAsync({ captionId: caption.id, text: fullText, imageUrl })
     setIgPublished(true)
-    setShowIgForm(false)
   }
 
   return (
@@ -82,6 +87,19 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
       <p className="text-xs text-gray-400">
         Topic: <span className="italic">{caption.topic}</span>
       </p>
+
+      {(metaStatus?.facebook.connected || metaStatus?.instagram.connected) && (
+        <div className="border-t border-gray-100 pt-3 space-y-2">
+          <ImageUpload
+            url={imageUrl}
+            onUpload={setImageUrl}
+            onRemove={() => { setImageUrl(''); setIgMissingImage(false) }}
+          />
+          {igMissingImage && (
+            <p className="text-xs text-amber-600">A photo is required for Instagram.</p>
+          )}
+        </div>
+      )}
 
       <div className="flex items-center justify-between gap-2 flex-wrap">
         {showFeedback && <FeedbackButtons caption={caption} />}
@@ -139,43 +157,18 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
               </div>
             ) : (
               <button
-                onClick={() => setShowIgForm((v) => !v)}
+                onClick={handlePublishInstagram}
+                disabled={publishIg.isPending}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-white rounded-lg transition-colors disabled:opacity-50"
                 style={{ background: 'linear-gradient(135deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888)' }}
               >
-                <Instagram className="h-3 w-3" />
+                {publishIg.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Instagram className="h-3 w-3" />}
                 Post to Instagram
               </button>
             )
           )}
         </div>
       </div>
-
-      {showIgForm && !igPublished && (
-        <div className="flex items-center gap-2 pt-1 border-t border-gray-100">
-          <input
-            type="url"
-            placeholder="Public image URL (required for Instagram)"
-            value={igImageUrl}
-            onChange={(e) => setIgImageUrl(e.target.value)}
-            className="flex-1 text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400"
-          />
-          <button
-            onClick={handlePublishInstagram}
-            disabled={!igImageUrl || publishIg.isPending}
-            className="px-3 py-2 text-xs text-white rounded-lg transition-colors disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888)' }}
-          >
-            {publishIg.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Post'}
-          </button>
-          <button
-            onClick={() => setShowIgForm(false)}
-            className="px-3 py-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
     </div>
   )
 }

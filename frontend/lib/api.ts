@@ -29,6 +29,10 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  // Let the browser set Content-Type (with boundary) for multipart uploads
+  if (config.data instanceof FormData) {
+    config.headers['Content-Type'] = undefined
+  }
   return config
 })
 
