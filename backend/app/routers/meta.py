@@ -155,6 +155,15 @@ async def publish_facebook(
     ).data
     if not row:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Facebook not connected.")
+    caption_check = (
+        db.table("captions")
+        .select("id")
+        .eq("id", req.caption_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    if not caption_check.data:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Caption not found.")
     try:
         if req.image_url:
             result = await meta_service.publish_facebook_photo(
@@ -197,6 +206,15 @@ async def publish_instagram(
     ).data
     if not row:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Instagram not connected.")
+    caption_check = (
+        db.table("captions")
+        .select("id")
+        .eq("id", req.caption_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    if not caption_check.data:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Caption not found.")
     try:
         result = await meta_service.publish_instagram_post(
             ig_user_id=row[0]["platform_user_id"],
