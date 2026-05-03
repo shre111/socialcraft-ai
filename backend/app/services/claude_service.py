@@ -65,11 +65,23 @@ class ClaudeService:
             messages=[{"role": "user", "content": user_message}],
         )
 
+        if not message.content:
+            raise ValueError("Claude returned an empty response.")
+
         raw = message.content[0].text.strip()
 
         # Strip markdown fences if Claude adds them despite instructions
         raw = re.sub(r"^```(?:json)?\s*", "", raw)
         raw = re.sub(r"\s*```$", "", raw)
 
-        parsed = json.loads(raw)
-        return parsed.get("captions", [])
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Claude returned invalid JSON: {exc}\nRaw response: {raw[:200]}"
+            ) from exc
+
+        captions = parsed.get("captions", [])
+        if not isinstance(captions, list):
+            raise ValueError(f"Unexpected captions format from Claude: {type(captions)}")
+        return captions
