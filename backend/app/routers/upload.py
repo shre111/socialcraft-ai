@@ -27,7 +27,8 @@ async def upload_image(
             detail="Only JPEG, PNG, WebP, and GIF images are allowed.",
         )
 
-    data = await file.read()
+    # Read only up to MAX_BYTES + 1 — avoids loading a huge file fully into memory
+    data = await file.read(MAX_BYTES + 1)
     if len(data) > MAX_BYTES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
