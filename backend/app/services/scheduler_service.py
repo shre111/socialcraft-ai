@@ -50,9 +50,15 @@ async def run_scheduler() -> dict:
                 text += "\n\n" + " ".join(h if h.startswith("#") else f"#{h}" for h in hashtags)
 
             token_row = tokens.get(platform, {}).get(user_id)
+            if not token_row:
+                log.warning("No OAuth token for %s/%s — marking post %s as failed", platform, user_id, post["id"])
+                db.table("scheduled_posts").update({"status": "failed"}).eq("id", post["id"]).execute()
+                failed += 1
+                continue
+
             post_id = None
 
-            if platform == "linkedin" and token_row:
+            if platform == "linkedin":
                 result = await linkedin_service.publish_text_post(
                     access_token=token_row["access_token"],
                     person_urn=token_row["platform_user_id"],
@@ -60,7 +66,7 @@ async def run_scheduler() -> dict:
                 )
                 post_id = result.get("id")
 
-            elif platform == "facebook" and token_row:
+            elif platform == "facebook":
                 result = await meta_service.publish_facebook_post(
                     page_id=token_row["platform_user_id"],
                     page_access_token=token_row["access_token"],
@@ -68,18 +74,20 @@ async def run_scheduler() -> dict:
                 )
                 post_id = result.get("id")
 
-            elif platform == "instagram" and token_row:
+            elif platform == "instagram":
                 image_url = post.get("image_url")
-                if image_url:
-                    result = await meta_service.publish_instagram_post(
-                        ig_user_id=token_row["platform_user_id"],
-                        page_access_token=token_row["access_token"],
-                        image_url=image_url,
-                        caption=text,
-                    )
-                    post_id = result.get("id")
-                else:
-                    log.warning("Skipping Instagram post %s — no image_url", post["id"])
+                if not image_url:
+                    log.warning("Instagram post %s has no image_url — marking as failed", post["id"])
+                    db.table("scheduled_posts").update({"status": "failed"}).eq("id", post["id"]).execute()
+                    failed += 1
+                    continue
+                result = await meta_service.publish_instagram_post(
+                    ig_user_id=token_row["platform_user_id"],
+                    page_access_token=token_row["access_token"],
+                    image_url=image_url,
+                    caption=text,
+                )
+                post_id = result.get("id")
 
             db.table("scheduled_posts").update({
                 "status": "published",
