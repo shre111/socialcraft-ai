@@ -9,6 +9,7 @@ import { useScheduledPosts, useSchedulePost } from '@/hooks/useScheduler'
 import { useCaptionHistory } from '@/hooks/useCaption'
 import { useLinkedInStatus } from '@/hooks/useLinkedIn'
 import { useMetaStatus } from '@/hooks/useMeta'
+import { ImageUpload } from '@/components/ui/ImageUpload'
 import { formatDate } from '@/lib/utils'
 import type { Platform } from '@/types'
 
@@ -141,17 +142,14 @@ export default function SchedulerPage() {
             {platform === 'instagram' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image URL <span className="text-red-500">*</span>
+                  Photo <span className="text-red-500">*</span>
                 </label>
-                <input
-                  required
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                <ImageUpload
+                  url={imageUrl}
+                  onUpload={setImageUrl}
+                  onRemove={() => setImageUrl('')}
                 />
-                <p className="text-xs text-gray-400 mt-1">Must be a publicly accessible URL. Required for Instagram.</p>
+                <p className="text-xs text-gray-400 mt-1">Required for Instagram posts.</p>
               </div>
             )}
 
@@ -172,7 +170,7 @@ export default function SchedulerPage() {
             <div className="flex gap-3">
               <button
                 type="submit"
-                disabled={schedule.isPending || !isPlatformConnected(platform)}
+                disabled={schedule.isPending || !isPlatformConnected(platform) || (platform === 'instagram' && !imageUrl)}
                 className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 disabled:opacity-50 transition-colors"
               >
                 {schedule.isPending ? (
