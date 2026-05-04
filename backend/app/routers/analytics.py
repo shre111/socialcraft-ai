@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 import traceback
 from collections import Counter
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from app.database import get_supabase
 from app.utils.auth import get_current_user_id
@@ -16,16 +16,18 @@ async def get_analytics_summary(user_id: str = Depends(get_current_user_id)):
     try:
         db = get_supabase()
 
+        since = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+
         captions = (
-            db.table("captions").select("*").eq("user_id", user_id).execute()
+            db.table("captions").select("*").eq("user_id", user_id).gte("created_at", since).execute()
         ).data or []
 
         events = (
-            db.table("user_events").select("*").eq("user_id", user_id).execute()
+            db.table("user_events").select("*").eq("user_id", user_id).gte("created_at", since).execute()
         ).data or []
 
         scheduled = (
-            db.table("scheduled_posts").select("*").eq("user_id", user_id).execute()
+            db.table("scheduled_posts").select("*").eq("user_id", user_id).gte("created_at", since).execute()
         ).data or []
 
         total_captions = len(captions)
@@ -38,7 +40,7 @@ async def get_analytics_summary(user_id: str = Depends(get_current_user_id)):
         event_counts = Counter(e["event_type"] for e in events)
 
         # Captions per day (last 14 days)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         days_map: dict[str, int] = {}
         for i in range(13, -1, -1):
             d = (now - timedelta(days=i)).strftime("%b %d")
