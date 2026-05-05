@@ -57,5 +57,8 @@ export function useLinkedInPublish() {
       })
       return data.data
     },
+    onError: (err: Error) => {
+      console.error('[LinkedIn publish]', err.message)
+    },
   })
 }
