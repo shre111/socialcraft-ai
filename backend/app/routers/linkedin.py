@@ -2,6 +2,7 @@ from __future__ import annotations
 import logging
 import secrets
 import traceback
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
@@ -147,6 +148,7 @@ async def linkedin_publish(
             "event_type": "published",
             "caption_id": req.caption_id,
             "metadata": {"platform": "linkedin"},
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }).execute()
 
         return {"success": True, "data": {"post_id": result.get("id", "")}}
