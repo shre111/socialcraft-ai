@@ -35,6 +35,8 @@ class ModelTrainer:
 
         # Fetch related captions (keyed by id)
         caption_ids = list({e["caption_id"] for e in events if e.get("caption_id")})
+        if not caption_ids:
+            return {"error": "No events are linked to captions — cannot train"}
         caps_result = (
             self._db.table("captions")
             .select("id, language, platform, topic, generated_text")
