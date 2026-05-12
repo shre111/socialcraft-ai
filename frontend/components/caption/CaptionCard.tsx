@@ -119,6 +119,8 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to LinkedIn
               </div>
+            ) : publish.isError ? (
+              <span className="text-xs text-red-500">LinkedIn failed — try again</span>
             ) : (
               <button
                 onClick={handlePublish}
@@ -137,6 +139,8 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to Facebook
               </div>
+            ) : publishFb.isError ? (
+              <span className="text-xs text-red-500">Facebook failed — try again</span>
             ) : (
               <button
                 onClick={handlePublishFacebook}
@@ -155,6 +159,8 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to Instagram
               </div>
+            ) : publishIg.isError ? (
+              <span className="text-xs text-red-500">Instagram failed — try again</span>
             ) : (
               <button
                 onClick={handlePublishInstagram}
