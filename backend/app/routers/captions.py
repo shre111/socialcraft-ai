@@ -143,7 +143,7 @@ async def get_history(
                 was_liked=r.get("was_liked", False),
                 was_edited=r.get("was_edited", False),
                 final_text=r.get("final_text"),
-                created_at=datetime.fromisoformat(r["created_at"]),
+                created_at=datetime.fromisoformat(r["created_at"].replace("Z", "+00:00")),
             )
             for r in rows
         ]
