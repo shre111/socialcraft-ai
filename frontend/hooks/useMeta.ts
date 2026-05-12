@@ -53,6 +53,9 @@ export function usePublishFacebook() {
       })
       return data.data
     },
+    onError: (err: Error) => {
+      console.error('[Facebook publish]', err.message)
+    },
   })
 }
 
@@ -65,6 +68,9 @@ export function usePublishInstagram() {
         image_url: imageUrl,
       })
       return data.data
+    },
+    onError: (err: Error) => {
+      console.error('[Instagram publish]', err.message)
     },
   })
 }
