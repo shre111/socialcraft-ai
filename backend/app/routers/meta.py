@@ -169,7 +169,7 @@ async def publish_facebook(
                 page_access_token=row[0]["access_token"],
                 text=req.text,
             )
-        db.table("captions").update({"was_used": True}).eq("id", req.caption_id).execute()
+        db.table("captions").update({"was_used": True}).eq("id", req.caption_id).eq("user_id", user_id).execute()
         db.table("user_events").insert({
             "user_id": user_id,
             "event_type": "published",
@@ -204,7 +204,7 @@ async def publish_instagram(
             image_url=req.image_url,
             caption=req.text,
         )
-        db.table("captions").update({"was_used": True}).eq("id", req.caption_id).execute()
+        db.table("captions").update({"was_used": True}).eq("id", req.caption_id).eq("user_id", user_id).execute()
         db.table("user_events").insert({
             "user_id": user_id,
             "event_type": "published",
