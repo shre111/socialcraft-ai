@@ -4,7 +4,7 @@ from app.models.user import UserProfile, UpdatePreferencesRequest, UserMLProfile
 from app.database import get_supabase
 from app.utils.auth import get_current_user_id
 from app.ml.predictor import PersonalizationEngine
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -24,8 +24,8 @@ async def get_profile(user_id: str = Depends(get_current_user_id)):
             "emoji_usage": "medium",
             "avg_caption_length": 100,
             "hashtag_count": 6,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         db.table("user_profiles").insert(new_profile).execute()
         data = new_profile
@@ -52,7 +52,7 @@ async def update_preferences(
 ):
     db = get_supabase()
     updates = req.model_dump(exclude_none=True)
-    updates["updated_at"] = datetime.utcnow().isoformat()
+    updates["updated_at"] = datetime.now(timezone.utc).isoformat()
     db.table("user_profiles").update(updates).eq("id", user_id).execute()
     result = db.table("user_profiles").select("*").eq("id", user_id).single().execute()
     data = result.data
@@ -80,6 +80,6 @@ async def get_ml_profile(user_id: str = Depends(get_current_user_id)):
         predicted_language=profile.get("preferred_language", "english"),
         predicted_emoji_level=profile.get("emoji_usage", "medium"),
         training_data_points=profile.get("data_points", 0),
-        last_updated=datetime.utcnow(),
+        last_updated=datetime.now(timezone.utc),
     )
     return {"success": True, "data": ml_profile.model_dump()}
