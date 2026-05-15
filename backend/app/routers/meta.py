@@ -14,7 +14,7 @@ from app.services import meta_service
 router = APIRouter()
 log = logging.getLogger(__name__)
 
-REDIRECT_URI = "http://localhost:8000/api/meta/callback"
+REDIRECT_URI = f"{settings.backend_url}/api/meta/callback"
 
 
 @router.get("/connect")

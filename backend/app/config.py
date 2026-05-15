@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     supabase_service_key: str = ""
     anthropic_api_key: str = ""
     frontend_url: str = "http://localhost:3000"
+    backend_url: str = "http://localhost:8000"
 
     # Optional social platform keys
     meta_app_id: str = ""
