@@ -38,12 +38,10 @@ export function FeedbackButtons({ caption }: Props) {
   }
 
   const handleSaveEdit = () => {
-    submitFeedback({
-      captionId: caption.id,
-      feedbackType: 'edited',
-      editedText: editText,
-    })
-    setEditing(false)
+    submitFeedback(
+      { captionId: caption.id, feedbackType: 'edited', editedText: editText },
+      { onSuccess: () => setEditing(false) },
+    )
   }
 
   return (
