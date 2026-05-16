@@ -1,6 +1,6 @@
 from __future__ import annotations
 import httpx
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.config import settings
 
 META_GRAPH_URL = "https://graph.facebook.com/v21.0"
@@ -107,7 +107,9 @@ async def publish_instagram_post(
             data={"image_url": image_url, "caption": caption, "access_token": page_access_token},
         )
         container.raise_for_status()
-        container_id = container.json()["id"]
+        container_id = container.json().get("id")
+        if not container_id:
+            raise ValueError(f"Instagram container creation returned no id: {container.text}")
 
         publish = await client.post(
             f"{META_GRAPH_URL}/{ig_user_id}/media_publish",
@@ -118,4 +120,4 @@ async def publish_instagram_post(
 
 
 def token_expires_at(expires_in: int) -> str:
-    return (datetime.utcnow() + timedelta(seconds=expires_in)).isoformat()
+    return (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
