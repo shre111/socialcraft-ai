@@ -36,13 +36,21 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
       : '')
 
   const handlePublish = async () => {
-    await publish.mutateAsync({ captionId: caption.id, text: fullText })
-    setPublished(true)
+    try {
+      await publish.mutateAsync({ captionId: caption.id, text: fullText })
+      setPublished(true)
+    } catch {
+      // error rendered via publish.isError below
+    }
   }
 
   const handlePublishFacebook = async () => {
-    await publishFb.mutateAsync({ captionId: caption.id, text: fullText, imageUrl: imageUrl || undefined })
-    setFbPublished(true)
+    try {
+      await publishFb.mutateAsync({ captionId: caption.id, text: fullText, imageUrl: imageUrl || undefined })
+      setFbPublished(true)
+    } catch {
+      // error rendered via publishFb.isError below
+    }
   }
 
   const handlePublishInstagram = async () => {
@@ -51,8 +59,12 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
       return
     }
     setIgMissingImage(false)
-    await publishIg.mutateAsync({ captionId: caption.id, text: fullText, imageUrl })
-    setIgPublished(true)
+    try {
+      await publishIg.mutateAsync({ captionId: caption.id, text: fullText, imageUrl })
+      setIgPublished(true)
+    } catch {
+      // error rendered via publishIg.isError below
+    }
   }
 
   return (
@@ -119,6 +131,8 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to LinkedIn
               </div>
+            ) : publish.isError ? (
+              <span className="text-xs text-red-500">LinkedIn failed — try again</span>
             ) : (
               <button
                 onClick={handlePublish}
@@ -137,6 +151,8 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to Facebook
               </div>
+            ) : publishFb.isError ? (
+              <span className="text-xs text-red-500">Facebook failed — try again</span>
             ) : (
               <button
                 onClick={handlePublishFacebook}
@@ -155,6 +171,8 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to Instagram
               </div>
+            ) : publishIg.isError ? (
+              <span className="text-xs text-red-500">Instagram failed — try again</span>
             ) : (
               <button
                 onClick={handlePublishInstagram}
