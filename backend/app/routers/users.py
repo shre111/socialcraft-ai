@@ -12,7 +12,7 @@ router = APIRouter()
 @router.get("/profile", response_model=dict)
 async def get_profile(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
-    result = db.table("user_profiles").select("*").eq("id", user_id).single().execute()
+    result = db.table("user_profiles").select("*").eq("id", user_id).maybe_single().execute()
 
     if not result.data:
         # Auto-create profile on first access
@@ -54,7 +54,7 @@ async def update_preferences(
     updates = req.model_dump(exclude_none=True)
     updates["updated_at"] = datetime.now(timezone.utc).isoformat()
     db.table("user_profiles").update(updates).eq("id", user_id).execute()
-    result = db.table("user_profiles").select("*").eq("id", user_id).single().execute()
+    result = db.table("user_profiles").select("*").eq("id", user_id).maybe_single().execute()
     data = result.data
     profile = UserProfile(
         id=data["id"],
