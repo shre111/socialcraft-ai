@@ -68,47 +68,47 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4 hover:shadow-sm transition-shadow">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 space-y-4 hover:shadow-sm transition-shadow">
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="px-2 py-1 bg-violet-100 text-violet-700 rounded-full font-medium capitalize">
+        <span className="px-2 py-1 bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-400 rounded-full font-medium capitalize">
           {caption.language}
         </span>
-        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full capitalize">
+        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full capitalize">
           {caption.tone}
         </span>
-        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full capitalize">
+        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full capitalize">
           {caption.platform}
         </span>
-        <span className="ml-auto text-gray-400">{formatDate(caption.createdAt)}</span>
+        <span className="ml-auto text-gray-400 dark:text-gray-500">{formatDate(caption.createdAt)}</span>
       </div>
 
-      <p className="text-gray-800 whitespace-pre-wrap text-sm leading-relaxed">
+      <p className="text-gray-800 dark:text-gray-100 whitespace-pre-wrap text-sm leading-relaxed">
         {caption.finalText ?? caption.generatedText}
       </p>
 
       {caption.hashtags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {caption.hashtags.map((tag) => (
-            <span key={tag} className="text-xs text-violet-600 bg-violet-50 px-2 py-0.5 rounded">
+            <span key={tag} className="text-xs text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950 px-2 py-0.5 rounded">
               {tag.startsWith('#') ? tag : `#${tag}`}
             </span>
           ))}
         </div>
       )}
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-400 dark:text-gray-500">
         Topic: <span className="italic">{caption.topic}</span>
       </p>
 
       {(metaStatus?.facebook.connected || metaStatus?.instagram.connected) && (
-        <div className="border-t border-gray-100 pt-3 space-y-2">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-3 space-y-2">
           <ImageUpload
             url={imageUrl}
             onUpload={setImageUrl}
             onRemove={() => { setImageUrl(''); setIgMissingImage(false) }}
           />
           {igMissingImage && (
-            <p className="text-xs text-amber-600">A photo is required for Instagram.</p>
+            <p className="text-xs text-amber-600 dark:text-amber-400">A photo is required for Instagram.</p>
           )}
         </div>
       )}
@@ -119,7 +119,7 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
         <div className="flex items-center gap-2 ml-auto flex-wrap">
           <button
             onClick={() => router.push('/dashboard/scheduler')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-200 text-gray-600 rounded-lg hover:border-violet-300 hover:text-violet-600 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 rounded-lg hover:border-violet-300 hover:text-violet-600 dark:hover:border-violet-600 dark:hover:text-violet-400 transition-colors"
           >
             <CalendarClock className="h-3 w-3" />
             Schedule
@@ -127,12 +127,12 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
 
           {linkedInStatus?.connected && (
             published ? (
-              <div className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+              <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400 font-medium">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to LinkedIn
               </div>
             ) : publish.isError ? (
-              <span className="text-xs text-red-500">LinkedIn failed — try again</span>
+              <span className="text-xs text-red-500 dark:text-red-400">LinkedIn failed — try again</span>
             ) : (
               <button
                 onClick={handlePublish}
@@ -147,12 +147,12 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
 
           {metaStatus?.facebook.connected && (
             fbPublished ? (
-              <div className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+              <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400 font-medium">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to Facebook
               </div>
             ) : publishFb.isError ? (
-              <span className="text-xs text-red-500">Facebook failed — try again</span>
+              <span className="text-xs text-red-500 dark:text-red-400">Facebook failed — try again</span>
             ) : (
               <button
                 onClick={handlePublishFacebook}
@@ -167,12 +167,12 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
 
           {metaStatus?.instagram.connected && (
             igPublished ? (
-              <div className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+              <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400 font-medium">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Posted to Instagram
               </div>
             ) : publishIg.isError ? (
-              <span className="text-xs text-red-500">Instagram failed — try again</span>
+              <span className="text-xs text-red-500 dark:text-red-400">Instagram failed — try again</span>
             ) : (
               <button
                 onClick={handlePublishInstagram}

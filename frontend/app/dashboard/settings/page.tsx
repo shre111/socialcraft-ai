@@ -14,14 +14,14 @@ function LinkedInBanner() {
   const p = params.get('linkedin')
   if (p === 'connected')
     return (
-      <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 text-sm">
+      <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-400 rounded-xl px-4 py-3 text-sm">
         <CheckCircle2 className="h-4 w-4 shrink-0" />
         LinkedIn connected successfully!
       </div>
     )
   if (p === 'error')
     return (
-      <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-sm">
+      <div className="flex items-center gap-2 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
         <XCircle className="h-4 w-4 shrink-0" />
         LinkedIn connection failed. Please try again.
       </div>
@@ -35,14 +35,14 @@ function MetaBanner() {
   const reason = params.get('reason')
   if (p === 'connected')
     return (
-      <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 text-sm">
+      <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-400 rounded-xl px-4 py-3 text-sm">
         <CheckCircle2 className="h-4 w-4 shrink-0" />
         Facebook &amp; Instagram connected successfully!
       </div>
     )
   if (p === 'error')
     return (
-      <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-sm">
+      <div className="flex items-center gap-2 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
         <XCircle className="h-4 w-4 shrink-0" />
         {reason === 'no_pages'
           ? 'No Facebook Pages found. You need at least one Page to connect.'
@@ -64,8 +64,8 @@ function LinkedInCard() {
           <Linkedin className="h-5 w-5 text-white" />
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-900">LinkedIn</p>
-          <p className="text-xs text-gray-400">
+          <p className="text-sm font-medium text-gray-900 dark:text-white">LinkedIn</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">
             {isLoading ? 'Checking…' : status?.connected ? `Connected as ${status.username}` : 'Not connected'}
           </p>
         </div>
@@ -74,7 +74,7 @@ function LinkedInCard() {
         <button
           onClick={() => disconnect.mutate()}
           disabled={disconnect.isPending}
-          className="px-3 py-1.5 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 text-sm border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-50"
         >
           {disconnect.isPending ? <Loader2 className="h-4 w-4 animate-spin inline" /> : 'Disconnect'}
         </button>
@@ -107,8 +107,8 @@ function MetaCard() {
             <Facebook className="h-5 w-5 text-white" />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900">Facebook Page</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Facebook Page</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
               {isLoading
                 ? 'Checking…'
                 : status?.facebook.connected
@@ -138,8 +138,8 @@ function MetaCard() {
             <Instagram className="h-5 w-5 text-white" />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900">Instagram Business</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Instagram Business</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
               {isLoading
                 ? 'Checking…'
                 : status?.instagram.connected
@@ -157,7 +157,7 @@ function MetaCard() {
           <button
             onClick={() => disconnect.mutate()}
             disabled={disconnect.isPending}
-            className="px-3 py-1.5 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 text-sm border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-50"
           >
             {disconnect.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin inline" />
@@ -207,7 +207,7 @@ export default function SettingsPage() {
 
   if (isLoading)
     return (
-      <div className="flex items-center gap-2 text-gray-400 py-12 justify-center">
+      <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 py-12 justify-center">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     )
@@ -215,8 +215,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-500 mt-1">Personalise your default caption preferences.</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">Personalise your default caption preferences.</p>
       </div>
 
       <Suspense fallback={null}>
@@ -224,17 +224,17 @@ export default function SettingsPage() {
         <MetaBanner />
       </Suspense>
 
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
-        <h2 className="font-semibold text-gray-900">Connected Accounts</h2>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-6">
+        <h2 className="font-semibold text-gray-900 dark:text-white">Connected Accounts</h2>
         <LinkedInCard />
-        <div className="border-t border-gray-100 pt-4">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
           <MetaCard />
         </div>
       </div>
 
       {mlProfile && (
-        <div className="bg-violet-50 border border-violet-200 rounded-xl p-5">
-          <h2 className="font-semibold text-violet-900 mb-3">Your AI Profile</h2>
+        <div className="bg-violet-50 dark:bg-violet-950 border border-violet-200 dark:border-violet-800 rounded-xl p-5">
+          <h2 className="font-semibold text-violet-900 dark:text-violet-300 mb-3">Your AI Profile</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
             <Stat label="Predicted tone" value={mlProfile.predictedTone} />
             <Stat label="Predicted language" value={mlProfile.predictedLanguage} />
@@ -244,13 +244,13 @@ export default function SettingsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Default language</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Default language</label>
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value as Language)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
           >
             {LANGUAGES.map((l) => (
               <option key={l.value} value={l.value}>
@@ -261,7 +261,7 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Default tone</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Default tone</label>
           <div className="flex flex-wrap gap-2">
             {TONES.map((t) => (
               <button
@@ -270,7 +270,7 @@ export default function SettingsPage() {
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                   tone === t.value
                     ? 'bg-violet-600 text-white border-violet-600'
-                    : 'border-gray-200 text-gray-600 hover:border-violet-300'
+                    : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-violet-300'
                 }`}
               >
                 {t.label}
@@ -280,7 +280,7 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Emoji usage</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Emoji usage</label>
           <div className="flex gap-2">
             {(['low', 'medium', 'high'] as EmojiUsage[]).map((level) => (
               <button
@@ -289,7 +289,7 @@ export default function SettingsPage() {
                 className={`flex-1 py-2 rounded-lg text-sm border capitalize transition-colors ${
                   emoji === level
                     ? 'bg-violet-600 text-white border-violet-600'
-                    : 'border-gray-200 text-gray-600 hover:border-violet-300'
+                    : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-violet-300'
                 }`}
               >
                 {level}
@@ -299,7 +299,7 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Preferred platforms</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Preferred platforms</label>
           <div className="flex flex-wrap gap-2">
             {PLATFORMS.map((p) => (
               <button
@@ -308,7 +308,7 @@ export default function SettingsPage() {
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                   platforms.includes(p.value as Platform)
                     ? 'bg-violet-600 text-white border-violet-600'
-                    : 'border-gray-200 text-gray-600 hover:border-violet-300'
+                    : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-violet-300'
                 }`}
               >
                 {p.label}
@@ -333,8 +333,8 @@ export default function SettingsPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-violet-600 font-medium uppercase tracking-wide">{label}</p>
-      <p className="text-gray-900 font-semibold capitalize mt-0.5">{value}</p>
+      <p className="text-xs text-violet-600 dark:text-violet-400 font-medium uppercase tracking-wide">{label}</p>
+      <p className="text-gray-900 dark:text-violet-200 font-semibold capitalize mt-0.5">{value}</p>
     </div>
   )
 }

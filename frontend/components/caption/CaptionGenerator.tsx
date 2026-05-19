@@ -33,14 +33,12 @@ export function CaptionGenerator() {
 
   return (
     <div className="space-y-6">
-      {/* Form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6"
+        className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-6"
       >
-        {/* Topic */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             What&apos;s your post about?
           </label>
           <textarea
@@ -48,7 +46,7 @@ export function CaptionGenerator() {
             onChange={(e) => setTopic(e.target.value)}
             rows={3}
             placeholder="e.g. Launching my new fitness app that tracks calories using AI..."
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none placeholder:text-gray-400"
+            className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
           />
           {validationError && (
             <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
@@ -78,26 +76,23 @@ export function CaptionGenerator() {
         </button>
       </form>
 
-      {/* Error */}
       {generate.isError && (
-        <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+        <div className="flex items-center gap-2 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
           <AlertCircle className="h-4 w-4 flex-shrink-0" />
           {generate.error?.message ?? 'Failed to generate captions. Please try again.'}
         </div>
       )}
 
-      {/* Personalization badge */}
       {personalizationUsed && captions.length > 0 && (
-        <div className="flex items-center gap-2 bg-violet-50 border border-violet-200 text-violet-700 rounded-xl px-4 py-3 text-sm">
+        <div className="flex items-center gap-2 bg-violet-50 dark:bg-violet-950 border border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-400 rounded-xl px-4 py-3 text-sm">
           <Brain className="h-4 w-4 flex-shrink-0" />
           Personalized to your style — confidence {Math.round(confidenceScore * 100)}%
         </div>
       )}
 
-      {/* Results */}
       {captions.length > 0 && (
         <div className="space-y-4">
-          <h2 className="font-semibold text-gray-900">
+          <h2 className="font-semibold text-gray-900 dark:text-white">
             {captions.length} caption{captions.length > 1 ? 's' : ''} generated
           </h2>
           {captions.map((caption) => (

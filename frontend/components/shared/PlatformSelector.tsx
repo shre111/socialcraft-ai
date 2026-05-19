@@ -21,7 +21,7 @@ const PLATFORM_ICONS: Record<string, string> = {
 export function PlatformSelector({ value, onChange }: Props) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Platform</label>
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         {PLATFORMS.map((p) => (
           <button
@@ -31,8 +31,8 @@ export function PlatformSelector({ value, onChange }: Props) {
             className={cn(
               'flex flex-col items-center gap-1 py-3 rounded-xl border text-xs font-medium transition-colors',
               value === p.value
-                ? 'border-violet-500 bg-violet-50 text-violet-700'
-                : 'border-gray-200 text-gray-600 hover:border-violet-300 hover:bg-violet-50/30',
+                ? 'border-violet-500 bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-400'
+                : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-violet-300 hover:bg-violet-50/30 dark:hover:bg-violet-950/30',
               !p.free && 'opacity-60 cursor-not-allowed',
             )}
             disabled={!p.free}
@@ -41,7 +41,7 @@ export function PlatformSelector({ value, onChange }: Props) {
             <span className="text-xl">{PLATFORM_ICONS[p.value]}</span>
             <span>{p.label}</span>
             {!p.free && (
-              <span className="text-[10px] text-gray-400 leading-none">soon</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 leading-none">soon</span>
             )}
           </button>
         ))}
