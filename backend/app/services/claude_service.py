@@ -53,7 +53,8 @@ class ClaudeService:
         user_profile: dict,
         similar_captions: list[str],
     ) -> list[dict]:
-        system = build_system_prompt(user_profile, similar_captions)
+        effective_profile = {**user_profile, "preferred_language": language, "preferred_tone": tone}
+        system = build_system_prompt(effective_profile, similar_captions)
         user_message = (
             f"Generate {count} {tone} {language} captions for {platform} about: {topic}"
         )
