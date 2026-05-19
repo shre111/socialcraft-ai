@@ -19,9 +19,9 @@ const PLATFORM_ICONS: Record<string, React.ReactNode> = {
 }
 
 const STATUS_CONFIG = {
-  pending:   { icon: Clock,        color: 'text-amber-600 bg-amber-50', label: 'Pending' },
-  published: { icon: CheckCircle2, color: 'text-green-600 bg-green-50', label: 'Published' },
-  failed:    { icon: XCircle,      color: 'text-red-600 bg-red-50',     label: 'Failed' },
+  pending:   { icon: Clock,        color: 'text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400', label: 'Pending' },
+  published: { icon: CheckCircle2, color: 'text-green-600 bg-green-50 dark:bg-green-950 dark:text-green-400', label: 'Published' },
+  failed:    { icon: XCircle,      color: 'text-red-600 bg-red-50 dark:bg-red-950 dark:text-red-400',         label: 'Failed' },
 }
 
 const SCHEDULABLE_PLATFORMS: Platform[] = ['linkedin', 'facebook', 'instagram']
@@ -74,8 +74,8 @@ export default function SchedulerPage() {
     <div className="space-y-8 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Post Scheduler</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Post Scheduler</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
             Schedule captions to auto-publish. The backend checks every minute.
           </p>
         </div>
@@ -89,24 +89,28 @@ export default function SchedulerPage() {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
-          <h2 className="font-semibold text-gray-900">New scheduled post</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-5">
+          <h2 className="font-semibold text-gray-900 dark:text-white">New scheduled post</h2>
 
           {!isPlatformConnected(platform) && (
-            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm">
+            <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-400 rounded-xl px-4 py-3 text-sm">
               <Globe className="h-4 w-4 shrink-0" />
               Connect {platform.charAt(0).toUpperCase() + platform.slice(1)} in Settings before scheduling.
             </div>
           )}
 
+          {schedule.isError && (
+            <p className="text-xs text-red-500 dark:text-red-400">Failed to schedule — try again.</p>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Caption</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Caption</label>
               <select
                 required
                 value={captionId}
                 onChange={(e) => setCaptionId(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
               >
                 <option value="">Select a caption…</option>
                 {history?.map((c) => (
@@ -118,7 +122,7 @@ export default function SchedulerPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Platform</label>
               <div className="flex gap-2 flex-wrap">
                 {SCHEDULABLE_PLATFORMS.map((p) => (
                   <button
@@ -128,7 +132,7 @@ export default function SchedulerPage() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm capitalize transition-colors ${
                       platform === p
                         ? 'bg-violet-600 text-white border-violet-600'
-                        : 'border-gray-200 text-gray-600 hover:border-violet-300'
+                        : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-violet-300'
                     }`}
                   >
                     {PLATFORM_ICONS[p] ?? <Globe className="h-4 w-4" />}
@@ -140,7 +144,7 @@ export default function SchedulerPage() {
 
             {platform === 'instagram' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Image URL <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -149,14 +153,14 @@ export default function SchedulerPage() {
                   placeholder="https://example.com/image.jpg"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
-                <p className="text-xs text-gray-400 mt-1">Must be a publicly accessible URL. Required for Instagram.</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Must be a publicly accessible URL. Required for Instagram.</p>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Publish date &amp; time
               </label>
               <input
@@ -165,7 +169,7 @@ export default function SchedulerPage() {
                 min={minDateTime}
                 value={scheduledAt}
                 onChange={(e) => setScheduledAt(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
               />
             </div>
 
@@ -185,7 +189,7 @@ export default function SchedulerPage() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="px-4 py-2.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -195,16 +199,16 @@ export default function SchedulerPage() {
       )}
 
       <section className="space-y-3">
-        <h2 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">
+        <h2 className="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wide">
           Upcoming ({pending.length})
         </h2>
         {isLoading ? (
-          <div className="flex items-center gap-2 text-gray-400 py-8 justify-center">
+          <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 py-8 justify-center">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : pending.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center text-gray-400 text-sm">
-            No upcoming posts. Click "Schedule post" to add one.
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-10 text-center text-gray-400 dark:text-gray-500 text-sm">
+            No upcoming posts. Click &quot;Schedule post&quot; to add one.
           </div>
         ) : (
           pending.map((post) => <PostCard key={post.id} post={post} />)
@@ -213,7 +217,7 @@ export default function SchedulerPage() {
 
       {pastPosts.length > 0 && (
         <section className="space-y-3">
-          <h2 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">
+          <h2 className="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wide">
             Past ({pastPosts.length})
           </h2>
           {pastPosts.map((post) => (
@@ -233,26 +237,26 @@ function PostCard({ post }: { post: ReturnType<typeof useScheduledPosts>['data']
   const text = caption?.finalText ?? caption?.generatedText ?? ''
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5 flex gap-4">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 flex gap-4">
       <div className="flex-1 space-y-2 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.color}`}>
             <StatusIcon className="h-3 w-3" />
             {cfg.label}
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-gray-500 capitalize">
+          <span className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 capitalize">
             {PLATFORM_ICONS[post.platform] ?? <Globe className="h-3.5 w-3.5" />}
             {post.platform}
           </span>
-          <span className="ml-auto text-xs text-gray-400">
+          <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
             {formatDate(post.scheduledAt)}
           </span>
         </div>
         {caption?.topic && (
-          <p className="text-xs text-gray-400 font-medium">Topic: {caption.topic}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">Topic: {caption.topic}</p>
         )}
         {text && (
-          <p className="text-sm text-gray-700 line-clamp-2">{text}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{text}</p>
         )}
       </div>
     </div>
