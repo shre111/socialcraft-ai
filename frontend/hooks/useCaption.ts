@@ -47,6 +47,20 @@ export function useCaptionHistory() {
   })
 }
 
+export function useDeleteCaption() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (captionId: string) => {
+      const { data } = await api.delete<ApiResponse<{ ok: boolean }>>(`/api/captions/${captionId}`)
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['caption-history'] })
+    },
+  })
+}
+
 export function useSubmitFeedback() {
   const queryClient = useQueryClient()
   const { updateCaption } = useCaptionStore()

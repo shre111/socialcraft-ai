@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Linkedin, Loader2, CheckCircle2, CalendarClock, Facebook, Instagram } from 'lucide-react'
+import { Linkedin, Loader2, CheckCircle2, CalendarClock, Facebook, Instagram, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { FeedbackButtons } from './FeedbackButtons'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { formatDate } from '@/lib/utils'
 import { useLinkedInStatus, useLinkedInPublish } from '@/hooks/useLinkedIn'
 import { useMetaStatus, usePublishFacebook, usePublishInstagram } from '@/hooks/useMeta'
+import { useDeleteCaption } from '@/hooks/useCaption'
 import type { Caption } from '@/types'
 
 interface Props {
@@ -23,6 +24,7 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
   const publishFb = usePublishFacebook()
   const publishIg = usePublishInstagram()
 
+  const deleteCaption = useDeleteCaption()
   const [published, setPublished] = useState(false)
   const [fbPublished, setFbPublished] = useState(false)
   const [igPublished, setIgPublished] = useState(false)
@@ -115,6 +117,18 @@ export function CaptionCard({ caption, showFeedback = true }: Props) {
 
       <div className="flex items-center justify-between gap-2 flex-wrap">
         {showFeedback && <FeedbackButtons caption={caption} />}
+
+        {!showFeedback && (
+          <button
+            onClick={() => deleteCaption.mutate(caption.id)}
+            disabled={deleteCaption.isPending}
+            title="Delete caption"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-50"
+          >
+            {deleteCaption.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+            Delete
+          </button>
+        )}
 
         <div className="flex items-center gap-2 ml-auto flex-wrap">
           <button

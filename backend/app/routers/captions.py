@@ -117,6 +117,20 @@ async def generate_captions(
         )
 
 
+@router.delete("/{caption_id}", response_model=dict)
+async def delete_caption(
+    caption_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    try:
+        db = get_supabase()
+        db.table("captions").delete().eq("id", caption_id).eq("user_id", user_id).execute()
+        return {"success": True}
+    except Exception as exc:
+        log.error("Caption delete failed:\n%s", traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Delete failed: {type(exc).__name__}: {exc}")
+
+
 @router.get("/history", response_model=dict)
 async def get_history(
     limit: int = 20,
