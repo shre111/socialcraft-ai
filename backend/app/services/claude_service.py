@@ -52,23 +52,40 @@ class ClaudeService:
         count: int,
         user_profile: dict,
         similar_captions: list[str],
+        image_base64: str | None = None,
+        image_media_type: str | None = None,
     ) -> list[dict]:
         effective_profile = {**user_profile, "preferred_language": language, "preferred_tone": tone}
         system = build_system_prompt(effective_profile, similar_captions)
-        user_message = (
-            f"Generate {count} {tone} {language} captions for {platform} about: {topic}"
-        )
+
+        if topic:
+            user_text = f"Generate {count} {tone} {language} captions for {platform} about: {topic}"
+        else:
+            user_text = f"Generate {count} {tone} {language} captions for {platform} based on this image."
+
+        if image_base64 and image_media_type:
+            content: list = [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": image_media_type,
+                        "data": image_base64,
+                    },
+                },
+                {"type": "text", "text": user_text},
+            ]
+        else:
+            content = user_text
 
         message = self._client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=2048,
             system=system,
-            messages=[{"role": "user", "content": user_message}],
+            messages=[{"role": "user", "content": content}],
         )
 
         raw = message.content[0].text.strip()
-
-        # Strip markdown fences if Claude adds them despite instructions
         raw = re.sub(r"^```(?:json)?\s*", "", raw)
         raw = re.sub(r"\s*```$", "", raw)
 

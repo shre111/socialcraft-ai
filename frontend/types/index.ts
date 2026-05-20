@@ -60,7 +60,9 @@ export interface UserProfile {
 }
 
 export interface GenerateCaptionRequest {
-  topic: string
+  topic?: string
+  imageBase64?: string
+  imageMediaType?: string
   language: Language
   tone: Tone
   platform: Platform
