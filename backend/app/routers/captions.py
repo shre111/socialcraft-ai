@@ -40,17 +40,20 @@ async def generate_captions(
 
         # Build user profile for personalization
         user_profile = await personalization.build_user_profile(user_id)
-        similar_captions = await personalization.get_similar_liked_captions(user_id, req.topic)
+        topic = req.topic or "📷 Photo"
+        similar_captions = await personalization.get_similar_liked_captions(user_id, topic)
 
         # Generate via Claude
         raw_captions = await claude.generate(
-            topic=req.topic,
+            topic=topic,
             language=req.language,
             tone=req.tone,
             platform=req.platform,
             count=req.count,
             user_profile=user_profile,
             similar_captions=similar_captions,
+            image_base64=req.image_base64,
+            image_media_type=req.image_media_type,
         )
 
         personalization_used = bool(user_profile.get("data_points", 0) >= 3)
@@ -68,7 +71,7 @@ async def generate_captions(
             rows.append({
                 "id": caption_id,
                 "user_id": user_id,
-                "topic": req.topic,
+                "topic": topic,
                 "generated_text": cap["text"],
                 "language": req.language,
                 "tone": req.tone,
@@ -77,11 +80,11 @@ async def generate_captions(
                 "created_at": now,
             })
             caption_ids_for_embedding.append(caption_id)
-            texts_for_embedding.append(f"{req.topic} {cap['text']}")
+            texts_for_embedding.append(f"{topic} {cap['text']}")
             items.append(
                 CaptionItem(
                     id=caption_id,
-                    topic=req.topic,
+                    topic=topic,
                     generated_text=cap["text"],
                     language=req.language,
                     tone=req.tone,
