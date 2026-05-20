@@ -16,9 +16,18 @@ export function useGenerateCaptions() {
 
   return useMutation({
     mutationFn: async (payload: GenerateCaptionRequest) => {
+      const body = {
+        topic: payload.topic || undefined,
+        image_base64: payload.imageBase64 || undefined,
+        image_media_type: payload.imageMediaType || undefined,
+        language: payload.language,
+        tone: payload.tone,
+        platform: payload.platform,
+        count: payload.count,
+      }
       const { data } = await api.post<ApiResponse<GenerateCaptionResponse>>(
         '/api/captions/generate',
-        payload,
+        body,
       )
       return data.data
     },

@@ -2,20 +2,21 @@ import { create } from 'zustand'
 import type { Caption, Language, Tone, Platform } from '@/types'
 
 interface CaptionState {
-  // Form values
   topic: string
+  imageBase64: string
+  imageMediaType: string
   language: Language
   tone: Tone
   platform: Platform
   count: number
 
-  // Results
   captions: Caption[]
   personalizationUsed: boolean
   confidenceScore: number
 
-  // Actions
   setTopic: (topic: string) => void
+  setImage: (base64: string, mediaType: string) => void
+  clearImage: () => void
   setLanguage: (language: Language) => void
   setTone: (tone: Tone) => void
   setPlatform: (platform: Platform) => void
@@ -27,6 +28,8 @@ interface CaptionState {
 
 const defaults = {
   topic: '',
+  imageBase64: '',
+  imageMediaType: '',
   language: 'english' as Language,
   tone: 'casual' as Tone,
   platform: 'instagram' as Platform,
@@ -40,6 +43,8 @@ export const useCaptionStore = create<CaptionState>((set) => ({
   ...defaults,
 
   setTopic: (topic) => set({ topic }),
+  setImage: (imageBase64, imageMediaType) => set({ imageBase64, imageMediaType }),
+  clearImage: () => set({ imageBase64: '', imageMediaType: '' }),
   setLanguage: (language) => set({ language }),
   setTone: (tone) => set({ tone }),
   setPlatform: (platform) => set({ platform }),
