@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from supabase import Client
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
@@ -72,7 +72,7 @@ class ModelTrainer:
             "feature_importance": importance,
             "accuracy": accuracy,
             "training_samples": len(df),
-            "last_trained_at": datetime.utcnow().isoformat(),
+            "last_trained_at": datetime.now(timezone.utc).isoformat(),
         }
 
         # Upsert

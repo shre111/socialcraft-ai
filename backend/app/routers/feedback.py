@@ -7,7 +7,7 @@ from app.utils.auth import get_current_user_id
 from app.ml.trainer import ModelTrainer
 from app.ml.predictor import PersonalizationEngine
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 log = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ async def submit_feedback(
         "event_type": req.feedback_type,
         "caption_id": req.caption_id,
         "metadata": {"edited_text": req.edited_text} if req.edited_text else {},
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
     }
     db.table("user_events").insert(event).execute()
 

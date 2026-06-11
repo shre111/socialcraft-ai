@@ -9,7 +9,7 @@ from app.services import embedding_service
 from app.database import get_supabase
 from app.utils.auth import get_current_user_id
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 log = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ async def generate_captions(
         rows = []
         for cap in raw_captions:
             caption_id = str(uuid.uuid4())
-            now = datetime.utcnow().isoformat()
+            now = datetime.now(timezone.utc).isoformat()
             rows.append({
                 "id": caption_id,
                 "user_id": user_id,
