@@ -134,6 +134,16 @@ async def linkedin_publish(
             detail="LinkedIn account not connected. Please connect first.",
         )
 
+    caption_check = (
+        db.table("captions")
+        .select("id")
+        .eq("id", req.caption_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    if not caption_check.data:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Caption not found.")
+
     row = token_row.data[0]
     try:
         result = await linkedin_service.publish_text_post(
