@@ -54,7 +54,7 @@ async def submit_feedback(
         updates["was_used"] = True
 
     if updates:
-        db.table("captions").update(updates).eq("id", req.caption_id).execute()
+        db.table("captions").update(updates).eq("id", req.caption_id).eq("user_id", user_id).execute()
 
     background_tasks.add_task(_auto_retrain, user_id)
 
