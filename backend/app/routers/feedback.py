@@ -7,20 +7,19 @@ from app.utils.auth import get_current_user_id
 from app.ml.trainer import ModelTrainer
 from app.ml.predictor import PersonalizationEngine
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 log = logging.getLogger(__name__)
 
 
-def _auto_retrain(user_id: str) -> None:
+async def _auto_retrain(user_id: str) -> None:
     try:
         db = get_supabase()
         engine = PersonalizationEngine(db)
         if engine.should_retrain(user_id):
-            import asyncio
             trainer = ModelTrainer(db)
-            result = asyncio.run(trainer.train(user_id))
+            result = await trainer.train(user_id)
             log.info("Auto-retrain for %s: %s", user_id, result)
     except Exception:
         log.exception("Auto-retrain failed for %s", user_id)
@@ -40,7 +39,7 @@ async def submit_feedback(
         "event_type": req.feedback_type,
         "caption_id": req.caption_id,
         "metadata": {"edited_text": req.edited_text} if req.edited_text else {},
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
     }
     db.table("user_events").insert(event).execute()
 
