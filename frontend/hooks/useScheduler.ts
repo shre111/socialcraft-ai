@@ -47,5 +47,8 @@ export function useSchedulePost() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] })
     },
+    onError: (err: Error) => {
+      console.error('[schedule post]', err.message)
+    },
   })
 }

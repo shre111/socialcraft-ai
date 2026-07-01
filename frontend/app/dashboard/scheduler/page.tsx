@@ -51,20 +51,24 @@ export default function SchedulerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await schedule.mutateAsync({
-      caption_id: captionId,
-      platform,
-      scheduled_at: new Date(scheduledAt).toISOString(),
-      ...(platform === 'instagram' && imageUrl ? { image_url: imageUrl } : {}),
-    })
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
-      setShowForm(false)
-      setCaptionId('')
-      setScheduledAt('')
-      setImageUrl('')
-    }, 1500)
+    try {
+      await schedule.mutateAsync({
+        caption_id: captionId,
+        platform,
+        scheduled_at: new Date(scheduledAt).toISOString(),
+        ...(platform === 'instagram' && imageUrl ? { image_url: imageUrl } : {}),
+      })
+      setSubmitted(true)
+      setTimeout(() => {
+        setSubmitted(false)
+        setShowForm(false)
+        setCaptionId('')
+        setScheduledAt('')
+        setImageUrl('')
+      }, 1500)
+    } catch {
+      // error is surfaced via schedule.isError below
+    }
   }
 
   const pending = posts?.filter((p) => p.status === 'pending') ?? []
@@ -172,6 +176,10 @@ export default function SchedulerPage() {
                 className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
               />
             </div>
+
+            {schedule.isError && (
+              <p className="text-xs text-red-500">Failed to schedule — try again.</p>
+            )}
 
             <div className="flex gap-3">
               <button
