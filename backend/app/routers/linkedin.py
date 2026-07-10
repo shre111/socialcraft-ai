@@ -14,7 +14,7 @@ from app.services import linkedin_service
 router = APIRouter()
 log = logging.getLogger(__name__)
 
-REDIRECT_URI = "http://localhost:8000/api/linkedin/callback"
+REDIRECT_URI = f"{settings.backend_url}/api/linkedin/callback"
 
 
 @router.get("/connect")
